@@ -1,11 +1,18 @@
 <template>
-  <div id="nav">
-    <router-link to="/">Home</router-link> 
+  <div id="wrapper">
+      <!--Navbar Start-->
+    <div id="nav">
+      <router-link to="/">Home</router-link>
+    </div>
+    <!--Navbar Start-->
+
+    <h1>Secure Boocing Service</h1>
+    <br />
+    <router-view />
+    <!--Terminal Anzeige-->
+    <br />
+    <div>test</div>
   </div>
-  <router-view />
-  <footer>
-  test  
-  </footer>
 </template>
 
 <style scoped>
@@ -28,5 +35,10 @@
 
 #nav a.router-link-exact-active {
   color: #42b983;
+}
+
+#wrapper{
+  text-align: center;
+  margin: 0 auto;
 }
 </style>
