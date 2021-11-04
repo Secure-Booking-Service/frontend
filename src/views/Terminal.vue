@@ -33,4 +33,7 @@ export default class TerminalView extends Vue {}
 </script>
 
 <style>
+.xterm {
+  display: inline-block;
+}
 </style>
