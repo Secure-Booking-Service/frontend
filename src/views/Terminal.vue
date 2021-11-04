@@ -28,9 +28,9 @@ terminal.attachCustomKeyEventHandler((ev: KeyboardEvent) => {
     );
   },
 })
+
 export default class TerminalView extends Vue {}
 </script>
-
 
 <style>
 </style>
