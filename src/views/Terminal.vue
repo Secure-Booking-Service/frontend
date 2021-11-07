@@ -11,7 +11,7 @@ import { FitAddon } from "xterm-addon-fit";
 interface Command {
   command: string;
   description: string;
-  callback: (userInput: string) => string;
+  callback: (userInput?: string) => string;
 }
 
 var baseTheme = {
@@ -48,6 +48,11 @@ initializeTerminal();
 function initializeTerminal(): void {
   const fitAddon = new FitAddon();
   terminal.loadAddon(fitAddon);
+  registerCommand({
+    command: "help",
+    description: "Prints this help message.",
+    callback: printHelp,
+  });
   terminal.writeln("Welcome to the Secure Booking Service!");
   terminal.writeln("Type `help` for a list of available commands.");
   prompt();
@@ -55,7 +60,15 @@ function initializeTerminal(): void {
 
 function prompt(): void {
   command = "";
-  terminal.write("\r\n$ ");
+  terminal.write("\r\n\r\n$ ");
+}
+
+function printHelp(): string {
+  let helpString = "All available commands:\r\n";
+  for (let cmd of commands) {
+    helpString += `\r\n${cmd.command}\t\t${cmd.description}`;
+  }
+  return helpString;
 }
 
 export function registerCommand(newCommand: Command): boolean {
@@ -64,16 +77,16 @@ export function registerCommand(newCommand: Command): boolean {
 }
 
 function runCommand(text: string): void {
-  const keyword = text.trim().split(" ")[0];
+  const [keyword, args] = text.trim().split(" ");
   if (keyword.length > 0) {
     terminal.writeln("");
     const foundCommand = commands.filter((cmd) => cmd.command === keyword);
     if (foundCommand.length > 0) {
-      const answer = foundCommand[0].callback(text);
+      const answer = foundCommand[0].callback(args);
       terminal.write(answer);
-      return;
+    } else {
+      terminal.writeln(`${keyword}: command not found`);
     }
-    terminal.writeln(`${keyword}: command not found`);
   }
   prompt();
 }
@@ -108,6 +121,16 @@ terminal.onData((e) => {
       }
   }
 });
+
+// Demo area
+registerCommand({
+  command: "reflect",
+  description: "Reflects all text input back to the console output.",
+  callback: (userInput) => {
+    return userInput || "No input given!";
+  },
+});
+// Demo area end
 
 @Options({
   components: {},
