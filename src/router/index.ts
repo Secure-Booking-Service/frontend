@@ -1,11 +1,17 @@
 import { createRouter, createWebHashHistory, RouteRecordRaw } from "vue-router";
 import Home from "../views/Home.vue";
+import LoginAndRegistrationDummy from "../components/LoginAndRegistrationDummy.vue";
 
 const routes: Array<RouteRecordRaw> = [
   {
     path: "/",
     name: "Home",
     component: Home,
+  },
+  {
+    path: "/authentication",
+    name: "Authentication",
+    component: LoginAndRegistrationDummy,
   },
   {
     path: "/about",
