@@ -1,20 +1,17 @@
 <template>
-  <!--Navbar Start-->
-  <div id="nav">
-    <router-link to="/">Home</router-link>
-  </div>
-  <!--Navbar Ende-->
-
   <div id="wrapper">
+      <!--Navbar Start-->
+    <div id="nav">
+      <router-link to="/">Home</router-link>
+    </div>
+    <!--Navbar Start-->
 
     <h1>Secure Boocing Service</h1>
     <br />
-    <div id="xterm">
     <router-view />
-    </div>
     <!--Terminal Anzeige-->
-    <br /><br />
-    <div>testtesttest</div>
+    <br />
+    <div>test</div>
   </div>
 </template>
 
@@ -29,8 +26,6 @@
 
 #nav {
   padding: 30px;
-  text-align: center;
-  margin: 0 auto;
 }
 
 #nav a {
@@ -43,16 +38,6 @@
 }
 
 #wrapper{
-  text-align: center;
-  margin: 0 auto;
-  background: #645f5fcc;
-  width: 90%;
-  height: 90vh;
-  border: 2px solid #645f5fcc;
-
-}
-
-#xterm{
   text-align: center;
   margin: 0 auto;
 }
