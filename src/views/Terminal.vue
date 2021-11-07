@@ -1,7 +1,5 @@
 <template>
-<div class="inner">
   <div id="xterm"></div>
-</div>
 </template>
 
 <script lang="ts">
@@ -119,30 +117,33 @@ terminal.onData((e) => {
     );
   },
 })
-export default class TerminalView extends Vue {name = 'TerminalView'}
+export default class TerminalView extends Vue {}
 </script>
 
 <style>
 .xterm {
   display: inline-block;
+  border-radius: 4px;
+  background-color: #2d2e2c;
+}
+.terminal.xterm {
+  padding: 10px 20px;
+}
+#xterm {
+  text-align: center;
+  margin: 0 auto;
 }
 .xterm-viewport.xterm-viewport {
-    scrollbar-width: thin;
+  scrollbar-width: thin;
 }
 .xterm .xterm-viewport {
-    background-color: #000;
-    overflow-y: scroll;
-    cursor: default;
-    position: absolute;
-    right: 0;
-    left: 0;
-    top: 0;
-    bottom: 0;
-}
-.innerNo {
-    padding: 10px 20px;
-    border-radius: 4px;
-    background-color: #2D2E2C;
-    display: flex;
+  background-color: #000;
+  overflow-y: scroll;
+  cursor: default;
+  position: absolute;
+  right: 0;
+  left: 0;
+  top: 0;
+  bottom: 0;
 }
 </style>
