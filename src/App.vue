@@ -1,14 +1,12 @@
 <template>
   <div id="nav">
-    <router-link to="/">Home</router-link> 
+    <router-link to="/">Home</router-link> |
+    <router-link to="/about">About</router-link>
   </div>
   <router-view />
-  <footer>
-  test  
-  </footer>
 </template>
 
-<style scoped>
+<style>
 #app {
   font-family: Avenir, Helvetica, Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
