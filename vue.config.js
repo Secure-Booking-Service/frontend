@@ -4,9 +4,9 @@
  * @type {import('@vue/cli-service').ProjectOptions}
  */
 module.exports = {
-    devServer: {
-        watchOptions: {
-            poll: true
-        }
-    }
-}
+  devServer: {
+    watchOptions: {
+      poll: true,
+    },
+  },
+};
