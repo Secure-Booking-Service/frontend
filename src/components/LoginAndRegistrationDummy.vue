@@ -64,7 +64,9 @@ import {
             return console.error(apiResponse.error[0].message);
 
           // Request failed locally - maybe no internet connection etc?
-          return console.error("Something went wrong locally - Check internet?");
+          return console.error(
+            "Something went wrong locally - Check internet?"
+          );
         });
     },
     onRegister(event: Event) {
