@@ -2,12 +2,21 @@ import { Terminal } from "xterm";
 import { FitAddon } from "xterm-addon-fit";
 import router from "../../router/index";
 
+/**
+ * Object schema for registering a new command.
+ * command: The keyword to listen on terminal input
+ * description: A short description printed by the `help`command
+ * callback: The function to process the user input.
+ */
 export interface ICommand {
   command: string;
   description: string;
   callback: (terminalMgr: TerminalManager, userInput?: string) => string | void;
 }
 
+/**
+ * Main class for handling all xterm terminal related tasks.
+ */
 export class TerminalManager {
   private static _instance: TerminalManager;
   private terminal: Terminal;
@@ -17,6 +26,9 @@ export class TerminalManager {
   private commandHistoryPosition = 0;
   private isOpen = false;
 
+  /**
+   * Contructs the main terminal object (singleton contructor)
+   */
   private constructor() {
     this.terminal = new Terminal({
       fontFamily: '"Cascadia Code", Menlo, monospace',
@@ -46,6 +58,11 @@ export class TerminalManager {
     });
   }
 
+  /**
+   * Getter
+   * @static
+   * @returns The single TerminalManager instance
+   */
   public static get Instance(): TerminalManager {
     return this._instance || (this._instance = new this());
   }
@@ -58,11 +75,19 @@ export class TerminalManager {
     return this.registeredCommands;
   }
 
+  /**
+   * Prints a newline, followed by a $ prompt.
+   */
   private printPrompt(): void {
     this.currentCommand = "";
     this.terminal.write("\r\n$ ");
   }
 
+  /**
+   * Registers a new command to the terminal.
+   * @param newCommand The command to register
+   * @returns True if the command is registered successfully
+   */
   public registerCommand(newCommand: ICommand): boolean {
     const existingCommand = this.registeredCommands.filter(
       (cmd) => cmd.command === newCommand.command
@@ -71,12 +96,19 @@ export class TerminalManager {
       this.writeError(
         `Failed to register "${newCommand.command}": command already exists!`
       );
+      return false;
     }
     this.registeredCommands.push(newCommand);
     this.registeredCommands.sort((a, b) => a.command.localeCompare(b.command));
     return true;
   }
 
+  /**
+   * Initializes the terminal on first load.
+   *
+   * Resizes the window, registers event handlers & basic commands
+   * and prints the welcome message.
+   */
   private initializeTerminal(): void {
     const fitAddon = new FitAddon();
     this.terminal.loadAddon(fitAddon);
@@ -115,6 +147,9 @@ export class TerminalManager {
     });
   }
 
+  /**
+   * Searches and executes the command entered at the terminal.
+   */
   private runCommand(): void {
     const [keyword, args] = this.currentCommand.trim().split(" ");
     if (keyword.length > 0) {
@@ -133,6 +168,10 @@ export class TerminalManager {
     this.printPrompt();
   }
 
+  /**
+   * Moves the terminal prompt a character left or right.
+   * @param direction The arrow key pressed
+   */
   private moveCursor(direction: "ArrowLeft" | "ArrowRight"): void {
     const cursor = this.terminal.buffer.normal.cursorX;
     if (direction === "ArrowLeft" && cursor > 2) {
@@ -145,6 +184,10 @@ export class TerminalManager {
     }
   }
 
+  /**
+   * Loads a command from the command history.
+   * @param direction The arrow key pressed
+   */
   private loadHistoryCommand(direction: "ArrowUp" | "ArrowDown"): void {
     if (direction === "ArrowUp") {
       const cmd = this.commandHistory[this.commandHistoryPosition - 1];
@@ -167,6 +210,11 @@ export class TerminalManager {
     }
   }
 
+  /**
+   * Handles raw keyboard events entered in the terminal.
+   * @param event The keyboard event triggered
+   * @returns True if the event should be further processed internally by xterm
+   */
   private inputPreProcessing(event: KeyboardEvent): boolean {
     // Prevent terminal handling of ctrl + v
     if (event.code === "KeyV" && event.ctrlKey) {
@@ -190,9 +238,13 @@ export class TerminalManager {
     }
   }
 
-  private inputProcessing(char: string): void {
+  /**
+   * Handles all characters entered in the terminal.
+   * @param text A single entered character or pasted string
+   */
+  private inputProcessing(text: string): void {
     const cursor = this.terminal.buffer.normal.cursorX;
-    switch (char) {
+    switch (text) {
       case "\u0003": // Ctrl+C
         this.terminal.write("^C");
         this.printPrompt();
@@ -219,25 +271,29 @@ export class TerminalManager {
       default:
         // Print all other characters (if printable)
         if (
-          (char >= String.fromCharCode(0x20) &&
-            char <= String.fromCharCode(0x7b)) ||
-          char >= "\u00a0"
+          (text >= String.fromCharCode(0x20) &&
+            text <= String.fromCharCode(0x7b)) ||
+          text >= "\u00a0"
         ) {
           const first = this.currentCommand.slice(0, cursor - 2);
           const last = this.currentCommand.slice(cursor - 2);
-          this.currentCommand = first + char + last;
+          this.currentCommand = first + text + last;
           const moveCursor = "\x1b[D".repeat(
             this.currentCommand.length - cursor + 1
           );
-          if (char.length === 1) {
-            this.terminal.write(char + last + moveCursor);
+          if (text.length === 1) {
+            this.terminal.write(text + last + moveCursor);
           } else {
-            this.terminal.write(char + last);
+            this.terminal.write(text + last);
           }
         }
     }
   }
 
+  /**
+   * Opens and initializes the terminal.
+   * @param parent The parent element to create the terminal in
+   */
   public openTerminal(parent: HTMLElement | null): void {
     this.terminal.open(parent || document.createElement("div"));
     if (!this.isOpen) {
@@ -246,15 +302,28 @@ export class TerminalManager {
     this.isOpen = true;
   }
 
+  /**
+   * Writes a red string to the terminal.
+   * @param error The error string
+   * @param prompt If the prompt should appear after printing the error
+   */
   public writeError(error: string, prompt = true): void {
     this.terminal.writeln(`\x1b[31;1m${error}\x1b[0m`);
     if (prompt) this.printPrompt();
   }
 
+  /**
+   * Writes the given text to the terminal followed by a newline character.
+   * @param line The characters to write
+   */
   public writeLine(line: string): void {
     this.terminal.writeln(line);
   }
 
+  /**
+   * Writes the given text to the terminal.
+   * @param text The characters to write
+   */
   public write(text: string): void {
     this.terminal.write(text);
   }
