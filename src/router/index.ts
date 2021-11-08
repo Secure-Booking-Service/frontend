@@ -1,5 +1,6 @@
 import { createRouter, createWebHashHistory, RouteRecordRaw } from "vue-router";
 import TerminalView from "../views/Terminal.vue";
+import LoginAndRegistrationDummy from "../components/LoginAndRegistrationDummy.vue";
 
 const routes: Array<RouteRecordRaw> = [
   {
@@ -8,6 +9,10 @@ const routes: Array<RouteRecordRaw> = [
     component: TerminalView,
   },
   {
+    path: "/authentication",
+    name: "Authentication",
+    component: LoginAndRegistrationDummy,
+  },
     path: "/manual",
     name: "Man Page",
     // route level code-splitting
