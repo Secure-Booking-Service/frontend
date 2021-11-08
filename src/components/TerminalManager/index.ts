@@ -10,7 +10,7 @@ export interface ICommand {
 
 export class TerminalManager {
   private static _instance: TerminalManager;
-  private static _terminal: Terminal;
+  private terminal: Terminal;
   private currentCommand = "";
   private registeredCommands: ICommand[] = [];
   private commandHistory: string[] = [];
@@ -18,7 +18,7 @@ export class TerminalManager {
   private isOpen = false;
 
   private constructor() {
-    TerminalManager._terminal = new Terminal({
+    this.terminal = new Terminal({
       fontFamily: '"Cascadia Code", Menlo, monospace',
       fontSize: 16,
       cursorBlink: true,
@@ -50,20 +50,17 @@ export class TerminalManager {
     return this._instance || (this._instance = new this());
   }
 
-  public static get Terminal(): Terminal {
-    if (!this._instance) {
-      this._instance = new this();
-    }
-    return this._terminal;
-  }
-
+  /**
+   * Getter
+   * @returns All List of all registered commands.
+   */
   public get Commands(): ICommand[] {
     return this.registeredCommands;
   }
 
   private printPrompt(): void {
     this.currentCommand = "";
-    TerminalManager.Terminal.write("\r\n$ ");
+    this.terminal.write("\r\n$ ");
   }
 
   public registerCommand(newCommand: ICommand): boolean {
@@ -82,16 +79,14 @@ export class TerminalManager {
 
   private initializeTerminal(): void {
     const fitAddon = new FitAddon();
-    TerminalManager.Terminal.loadAddon(fitAddon);
+    this.terminal.loadAddon(fitAddon);
     fitAddon.fit();
-    TerminalManager.Terminal.attachCustomKeyEventHandler(
+    this.terminal.attachCustomKeyEventHandler(
       this.inputPreProcessing.bind(this)
     );
-    TerminalManager.Terminal.onData(this.inputProcessing.bind(this));
-    TerminalManager.Terminal.writeln("Welcome to the Secure Booking Service!");
-    TerminalManager.Terminal.writeln(
-      "Type `help` for a list of available commands."
-    );
+    this.terminal.onData(this.inputProcessing.bind(this));
+    this.terminal.writeln("Welcome to the Secure Booking Service!");
+    this.terminal.writeln("Type `help` for a list of available commands.");
     this.printPrompt();
     this.registerCommand({
       command: "help",
@@ -115,7 +110,7 @@ export class TerminalManager {
       command: "clear",
       description: "Too much text? This helps.",
       callback: () => {
-        TerminalManager.Terminal.clear();
+        this.terminal.clear();
       },
     });
   }
@@ -124,13 +119,13 @@ export class TerminalManager {
     const [keyword, args] = this.currentCommand.trim().split(" ");
     if (keyword.length > 0) {
       this.commandHistory.push(this.currentCommand);
-      TerminalManager.Terminal.writeln("");
+      this.terminal.writeln("");
       const foundCommand = this.registeredCommands.filter(
         (cmd) => cmd.command === keyword
       );
       if (foundCommand.length > 0) {
         const answer = foundCommand[0].callback(this, args);
-        TerminalManager.Terminal.write(answer || "");
+        this.terminal.write(answer || "");
       } else {
         this.writeError(`${keyword}: command not found`, false);
       }
@@ -139,7 +134,7 @@ export class TerminalManager {
   }
 
   private moveCursor(direction: "ArrowLeft" | "ArrowRight"): void {
-    const cursor = TerminalManager.Terminal.buffer.normal.cursorX;
+    const cursor = this.terminal.buffer.normal.cursorX;
     if (direction === "ArrowLeft" && cursor > 2) {
       this.write("\x1b[D");
     } else if (
@@ -155,7 +150,7 @@ export class TerminalManager {
       const cmd = this.commandHistory[this.commandHistoryPosition - 1];
       if (cmd) {
         this.commandHistoryPosition -= 1;
-        const chars = TerminalManager.Terminal.buffer.normal.cursorX - 2;
+        const chars = this.terminal.buffer.normal.cursorX - 2;
         this.write("\b \b".repeat(chars));
         this.write(cmd);
         this.currentCommand = cmd;
@@ -164,7 +159,7 @@ export class TerminalManager {
       const cmd = this.commandHistory[this.commandHistoryPosition + 1];
       if (cmd) {
         this.commandHistoryPosition += 1;
-        const chars = TerminalManager.Terminal.buffer.normal.cursorX - 2;
+        const chars = this.terminal.buffer.normal.cursorX - 2;
         this.write("\b \b".repeat(chars));
         this.write(cmd);
         this.currentCommand = cmd;
@@ -196,10 +191,10 @@ export class TerminalManager {
   }
 
   private inputProcessing(char: string): void {
-    const cursor = TerminalManager.Terminal.buffer.normal.cursorX;
+    const cursor = this.terminal.buffer.normal.cursorX;
     switch (char) {
       case "\u0003": // Ctrl+C
-        TerminalManager.Terminal.write("^C");
+        this.terminal.write("^C");
         this.printPrompt();
         break;
       case "\r": // Enter
@@ -217,7 +212,7 @@ export class TerminalManager {
             const moveCursor = "\x1b[D".repeat(
               this.currentCommand.length - cursor + 4
             );
-            TerminalManager.Terminal.write("\x1b[D" + last + " " + moveCursor);
+            this.terminal.write("\x1b[D" + last + " " + moveCursor);
           }
         }
         break;
@@ -235,16 +230,16 @@ export class TerminalManager {
             this.currentCommand.length - cursor + 1
           );
           if (char.length === 1) {
-            TerminalManager.Terminal.write(char + last + moveCursor);
+            this.terminal.write(char + last + moveCursor);
           } else {
-            TerminalManager.Terminal.write(char + last);
+            this.terminal.write(char + last);
           }
         }
     }
   }
 
   public openTerminal(parent: HTMLElement | null): void {
-    TerminalManager.Terminal.open(parent || document.createElement("div"));
+    this.terminal.open(parent || document.createElement("div"));
     if (!this.isOpen) {
       this.initializeTerminal();
     }
@@ -252,15 +247,15 @@ export class TerminalManager {
   }
 
   public writeError(error: string, prompt = true): void {
-    TerminalManager.Terminal.writeln(`\x1b[31;1m${error}\x1b[0m`);
+    this.terminal.writeln(`\x1b[31;1m${error}\x1b[0m`);
     if (prompt) this.printPrompt();
   }
 
   public writeLine(line: string): void {
-    TerminalManager.Terminal.writeln(line);
+    this.terminal.writeln(line);
   }
 
   public write(text: string): void {
-    TerminalManager.Terminal.write(text);
+    this.terminal.write(text);
   }
 }
