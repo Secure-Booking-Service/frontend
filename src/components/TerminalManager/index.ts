@@ -14,6 +14,7 @@ export class TerminalManager {
   private currentCommand = "";
   private registeredCommands: ICommand[] = [];
   private commandHistory: string[] = [];
+  private commandHistoryPosition = 0;
   private isOpen = false;
 
   private constructor() {
@@ -84,7 +85,7 @@ export class TerminalManager {
     TerminalManager.Terminal.loadAddon(fitAddon);
     fitAddon.fit();
     TerminalManager.Terminal.attachCustomKeyEventHandler(
-      this.inputPreProcessing
+      this.inputPreProcessing.bind(this)
     );
     TerminalManager.Terminal.onData(this.inputProcessing.bind(this));
     TerminalManager.Terminal.writeln("Welcome to the Secure Booking Service!");
@@ -110,6 +111,7 @@ export class TerminalManager {
         return "Opening documentation page...\r\n";
       },
     });
+    //TODO: Clear command
   }
 
   private runCommand(): void {
@@ -131,7 +133,7 @@ export class TerminalManager {
   }
 
   private inputPreProcessing(event: KeyboardEvent): boolean {
-    console.log(event.key); // TODO: Remove console statement
+    if (event.type === "keydown") return true;
     switch (event.key) {
       case "ArrowLeft":
         // Left pressed
@@ -139,12 +141,30 @@ export class TerminalManager {
       case "ArrowRight":
         // Right pressed
         return false;
-      case "ArrowUp":
+      case "ArrowUp": {
         // Up pressed
+        const cmd = this.commandHistory[this.commandHistoryPosition - 1];
+        if (cmd) {
+          this.commandHistoryPosition -= 1;
+          const chars = TerminalManager.Terminal.buffer.normal.cursorX - 2;
+          this.write("\b \b".repeat(chars));
+          this.write(cmd);
+          this.currentCommand = cmd;
+        }
         return false;
-      case "ArrowDown":
+      }
+      case "ArrowDown": {
         // Down pressed
+        const cmd = this.commandHistory[this.commandHistoryPosition + 1];
+        if (cmd) {
+          this.commandHistoryPosition += 1;
+          const chars = TerminalManager.Terminal.buffer.normal.cursorX - 2;
+          this.write("\b \b".repeat(chars));
+          this.write(cmd);
+          this.currentCommand = cmd;
+        }
         return false;
+      }
       default:
         return true;
     }
@@ -158,6 +178,7 @@ export class TerminalManager {
         break;
       case "\r": // Enter
         this.runCommand();
+        this.commandHistoryPosition = this.commandHistory.length;
         this.currentCommand = "";
         break;
       case "\u007F": // Backspace (DEL)
