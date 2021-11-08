@@ -1,5 +1,6 @@
 import { Terminal } from "xterm";
 import { FitAddon } from "xterm-addon-fit";
+import router from "../../router/index";
 
 export interface ICommand {
   command: string;
@@ -13,6 +14,7 @@ export class TerminalManager {
   private currentCommand = "";
   private registeredCommands: ICommand[] = [];
   private commandHistory: string[] = [];
+  private isOpen = false;
 
   private constructor() {
     TerminalManager._terminal = new Terminal({
@@ -88,7 +90,17 @@ export class TerminalManager {
       description: "Prints this help message.",
       callback: this.getHelp,
     });
-    TerminalManager.Terminal.writeln("Welcome to the Secure Booking Service!");
+    this.registerCommand({
+      command: "man",
+      description: "Opens the documentation page.",
+      callback: () => {
+        router.push("/manual");
+        return "Opening documentation page...\r\n";
+      },
+    });
+    TerminalManager.Terminal.writeln(
+      "Welcome to the Secure Booking Service!"
+    );
     TerminalManager.Terminal.writeln(
       "Type `help` for a list of available commands."
     );
@@ -169,7 +181,12 @@ export class TerminalManager {
   }
 
   public openTerminal(parent: HTMLElement | null): void {
-    TerminalManager.Terminal.open(parent || document.createElement("div"));
-    this.initializeTerminal();
+    TerminalManager.Terminal.open(
+      parent || document.createElement("div")
+    );
+    if (!this.isOpen) {
+      this.initializeTerminal();
+    }
+    this.isOpen = true;
   }
 }
