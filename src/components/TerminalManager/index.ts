@@ -138,56 +138,58 @@ export class TerminalManager {
     this.printPrompt();
   }
 
+  private moveCursor(direction: "ArrowLeft" | "ArrowRight"): void {
+    const cursor = TerminalManager.Terminal.buffer.normal.cursorX;
+    if (direction === "ArrowLeft" && cursor > 2) {
+      this.write("\x1b[D");
+    } else if (
+      direction === "ArrowRight" &&
+      cursor < this.currentCommand.length + 2
+    ) {
+      this.write("\x1b[C");
+    }
+  }
+
+  private loadHistoryCommand(direction: "ArrowUp" | "ArrowDown"): void {
+    if (direction === "ArrowUp") {
+      const cmd = this.commandHistory[this.commandHistoryPosition - 1];
+      if (cmd) {
+        this.commandHistoryPosition -= 1;
+        const chars = TerminalManager.Terminal.buffer.normal.cursorX - 2;
+        this.write("\b \b".repeat(chars));
+        this.write(cmd);
+        this.currentCommand = cmd;
+      }
+    } else if (direction === "ArrowDown") {
+      const cmd = this.commandHistory[this.commandHistoryPosition + 1];
+      if (cmd) {
+        this.commandHistoryPosition += 1;
+        const chars = TerminalManager.Terminal.buffer.normal.cursorX - 2;
+        this.write("\b \b".repeat(chars));
+        this.write(cmd);
+        this.currentCommand = cmd;
+      }
+    }
+  }
+
   private inputPreProcessing(event: KeyboardEvent): boolean {
     // Prevent terminal handling of ctrl + v
     if (event.code === "KeyV" && event.ctrlKey) {
       return false;
     }
     switch (event.key) {
-      case "ArrowLeft": {
-        // Left pressed
+      case "ArrowLeft":
+      case "ArrowRight":
+        // Left or right pressed
         if (event.type === "keyup") return false;
-        const cursor = TerminalManager.Terminal.buffer.normal.cursorX;
-        if (cursor > 2) {
-          this.write("\x1b[D");
-        }
+        this.moveCursor(event.key);
         return false;
-      }
-      case "ArrowRight": {
-        // Right pressed
-        if (event.type === "keyup") return false;
-        const cursor = TerminalManager.Terminal.buffer.normal.cursorX;
-        if (cursor < this.currentCommand.length + 2) {
-          this.write("\x1b[C");
-        }
-        return false;
-      }
-      case "ArrowUp": {
-        // Up pressed
+      case "ArrowUp":
+      case "ArrowDown":
+        // Up or down pressed
         if (event.type === "keydown") return false;
-        const cmd = this.commandHistory[this.commandHistoryPosition - 1];
-        if (cmd) {
-          this.commandHistoryPosition -= 1;
-          const chars = TerminalManager.Terminal.buffer.normal.cursorX - 2;
-          this.write("\b \b".repeat(chars));
-          this.write(cmd);
-          this.currentCommand = cmd;
-        }
+        this.loadHistoryCommand(event.key);
         return false;
-      }
-      case "ArrowDown": {
-        // Down pressed
-        if (event.type === "keydown") return false;
-        const cmd = this.commandHistory[this.commandHistoryPosition + 1];
-        if (cmd) {
-          this.commandHistoryPosition += 1;
-          const chars = TerminalManager.Terminal.buffer.normal.cursorX - 2;
-          this.write("\b \b".repeat(chars));
-          this.write(cmd);
-          this.currentCommand = cmd;
-        }
-        return false;
-      }
       default:
         return true;
     }
