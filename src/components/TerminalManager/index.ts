@@ -5,7 +5,7 @@ import router from "../../router/index";
 export interface ICommand {
   command: string;
   description: string;
-  callback: (userInput?: string) => string | void;
+  callback: (terminalMgr: TerminalManager, userInput?: string) => string | void;
 }
 
 export class TerminalManager {
@@ -19,7 +19,7 @@ export class TerminalManager {
   private constructor() {
     TerminalManager._terminal = new Terminal({
       fontFamily: '"Cascadia Code", Menlo, monospace',
-      fontSize: 18,
+      fontSize: 16,
       cursorBlink: true,
       theme: {
         foreground: "#F8F8F8",
@@ -65,14 +65,6 @@ export class TerminalManager {
     TerminalManager.Terminal.write("\r\n$ ");
   }
 
-  private getHelp(): string {
-    let helpString = "All available commands:\r\n";
-    for (const cmd of TerminalManager.Instance.Commands) {
-      helpString += `\r\n${cmd.command}\t\t${cmd.description}`;
-    }
-    return helpString + "\r\n";
-  }
-
   public registerCommand(newCommand: ICommand): boolean {
     const existingCommand = this.registeredCommands.filter(
       (cmd) => cmd.command === newCommand.command
@@ -95,9 +87,7 @@ export class TerminalManager {
       this.inputPreProcessing
     );
     TerminalManager.Terminal.onData(this.inputProcessing.bind(this));
-    TerminalManager.Terminal.writeln(
-      "Welcome to the Secure Booking Service!"
-    );
+    TerminalManager.Terminal.writeln("Welcome to the Secure Booking Service!");
     TerminalManager.Terminal.writeln(
       "Type `help` for a list of available commands."
     );
@@ -105,7 +95,12 @@ export class TerminalManager {
     this.registerCommand({
       command: "help",
       description: "Prints this help message.",
-      callback: this.getHelp,
+      callback: (terminalMgr) => {
+        terminalMgr.writeLine("All available commands:\r\n");
+        for (const cmd of TerminalManager.Instance.Commands) {
+          terminalMgr.writeLine(`${cmd.command}\t\t${cmd.description}`);
+        }
+      },
     });
     this.registerCommand({
       command: "man",
@@ -126,7 +121,7 @@ export class TerminalManager {
         (cmd) => cmd.command === keyword
       );
       if (foundCommand.length > 0) {
-        const answer = foundCommand[0].callback(args);
+        const answer = foundCommand[0].callback(this, args);
         TerminalManager.Terminal.write(answer || "");
       } else {
         this.writeError(`${keyword}: command not found`, false);
@@ -191,9 +186,7 @@ export class TerminalManager {
   }
 
   public openTerminal(parent: HTMLElement | null): void {
-    TerminalManager.Terminal.open(
-      parent || document.createElement("div")
-    );
+    TerminalManager.Terminal.open(parent || document.createElement("div"));
     if (!this.isOpen) {
       this.initializeTerminal();
     }
@@ -203,5 +196,13 @@ export class TerminalManager {
   public writeError(error: string, prompt = true): void {
     TerminalManager.Terminal.writeln(`\x1b[31;1m${error}\x1b[0m`);
     if (prompt) this.printPrompt();
+  }
+
+  public writeLine(line: string): void {
+    TerminalManager.Terminal.writeln(line);
+  }
+
+  public write(text: string): void {
+    TerminalManager.Terminal.write(text);
   }
 }

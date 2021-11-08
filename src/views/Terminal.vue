@@ -11,7 +11,7 @@ import "xterm/css/xterm.css";
 TerminalManager.Instance.registerCommand({
   command: "echo",
   description: "Reflects all text input back to the console output.",
-  callback: (userInput) => {
+  callback: (terminalMgr, userInput) => {
     return userInput + "\r\n";
   },
 });
