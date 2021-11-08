@@ -181,24 +181,26 @@ export class TerminalManager {
    * @param direction The arrow key pressed
    */
   private loadHistoryCommand(direction: "ArrowUp" | "ArrowDown"): void {
-    if (direction === "ArrowUp") {
-      const cmd = this.commandHistory[this.commandHistoryPosition - 1];
-      if (cmd) {
-        this.commandHistoryPosition -= 1;
-        const chars = this.terminal.buffer.normal.cursorX - 2;
-        this.write("\b \b".repeat(chars));
-        this.write(cmd);
-        this.currentCommand = cmd;
+    const cursor = this.terminal.buffer.normal.cursorX;
+    // The change to the current position in history depending on the pressed key
+    const posChange = direction === "ArrowUp" ? -1 : 1;
+    // Get the previous / next command if exists
+    const cmd = this.commandHistory[this.commandHistoryPosition + posChange];
+    if (cmd) {
+      // Apply history position change
+      this.commandHistoryPosition += posChange;
+      // Clear all characters from the current terminal line
+      const cursorOffsetToLineEnd = this.currentCommand.length - (cursor - 2);
+      if (cursorOffsetToLineEnd !== 0) {
+        // Clear characters to the right of the cursor
+        this.write(" ".repeat(cursorOffsetToLineEnd));
       }
-    } else if (direction === "ArrowDown") {
-      const cmd = this.commandHistory[this.commandHistoryPosition + 1];
-      if (cmd) {
-        this.commandHistoryPosition += 1;
-        const chars = this.terminal.buffer.normal.cursorX - 2;
-        this.write("\b \b".repeat(chars));
-        this.write(cmd);
-        this.currentCommand = cmd;
-      }
+      // Clear characters to the left of the cursor
+      const chars = cursor + cursorOffsetToLineEnd - 2;
+      this.write("\b \b".repeat(chars));
+      // Write history command
+      this.write(cmd);
+      this.currentCommand = cmd;
     }
   }
 
