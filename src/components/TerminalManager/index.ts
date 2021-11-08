@@ -111,7 +111,13 @@ export class TerminalManager {
         return "Opening documentation page...\r\n";
       },
     });
-    //TODO: Clear command
+    this.registerCommand({
+      command: "clear",
+      description: "Too much text? This helps.",
+      callback: () => {
+        TerminalManager.Terminal.clear();
+      },
+    });
   }
 
   private runCommand(): void {
