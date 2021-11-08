@@ -68,14 +68,6 @@ export class TerminalManager {
   }
 
   /**
-   * Getter
-   * @returns All List of all registered commands.
-   */
-  public get Commands(): ICommand[] {
-    return this.registeredCommands;
-  }
-
-  /**
    * Prints a newline, followed by a $ prompt.
    */
   private printPrompt(): void {
@@ -125,7 +117,7 @@ export class TerminalManager {
       description: "Prints this help message.",
       callback: (terminalMgr) => {
         terminalMgr.writeLine("All available commands:\r\n");
-        for (const cmd of TerminalManager.Instance.Commands) {
+        for (const cmd of this.registeredCommands) {
           terminalMgr.writeLine(`${cmd.command}\t\t${cmd.description}`);
         }
       },
