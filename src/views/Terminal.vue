@@ -27,29 +27,13 @@ export default class TerminalView extends Vue {}
 </script>
 
 <style>
-.xterm {
-  display: inline-block;
-  border-radius: 4px;
-  background-color: #2d2e2c;
-}
-.terminal.xterm {
-  padding: 10px 20px;
-}
 #xterm {
-  text-align: center;
-  margin: 0 auto;
+  min-height: calc(100vh - 20px);
+  width: calc(100vw - 40px);
+  background-color: #2d2e2c;
+  padding: 10px 20px;
 }
 .xterm-viewport.xterm-viewport {
   scrollbar-width: thin;
-}
-.xterm .xterm-viewport {
-  background-color: #000;
-  overflow-y: scroll;
-  cursor: default;
-  position: absolute;
-  right: 0;
-  left: 0;
-  top: 0;
-  bottom: 0;
 }
 </style>
