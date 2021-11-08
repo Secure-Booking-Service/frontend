@@ -19,6 +19,7 @@ export class TerminalManager {
   private constructor() {
     TerminalManager._terminal = new Terminal({
       fontFamily: '"Cascadia Code", Menlo, monospace',
+      fontSize: 18,
       cursorBlink: true,
       theme: {
         foreground: "#F8F8F8",
@@ -73,18 +74,34 @@ export class TerminalManager {
   }
 
   public registerCommand(newCommand: ICommand): boolean {
+    const existingCommand = this.registeredCommands.filter(
+      (cmd) => cmd.command === newCommand.command
+    );
+    if (existingCommand.length > 0) {
+      this.writeError(
+        `Failed to register "${newCommand.command}": command already exists!`
+      );
+    }
     this.registeredCommands.push(newCommand);
-    //TODO: Duplikate prüfen
+    this.registeredCommands.sort((a, b) => a.command.localeCompare(b.command));
     return true;
   }
 
   private initializeTerminal(): void {
     const fitAddon = new FitAddon();
     TerminalManager.Terminal.loadAddon(fitAddon);
+    fitAddon.fit();
     TerminalManager.Terminal.attachCustomKeyEventHandler(
       this.inputPreProcessing
     );
     TerminalManager.Terminal.onData(this.inputProcessing.bind(this));
+    TerminalManager.Terminal.writeln(
+      "Welcome to the Secure Booking Service!"
+    );
+    TerminalManager.Terminal.writeln(
+      "Type `help` for a list of available commands."
+    );
+    this.printPrompt();
     this.registerCommand({
       command: "help",
       description: "Prints this help message.",
@@ -98,13 +115,6 @@ export class TerminalManager {
         return "Opening documentation page...\r\n";
       },
     });
-    TerminalManager.Terminal.writeln(
-      "Welcome to the Secure Booking Service!"
-    );
-    TerminalManager.Terminal.writeln(
-      "Type `help` for a list of available commands."
-    );
-    this.printPrompt();
   }
 
   private runCommand(): void {
@@ -119,7 +129,7 @@ export class TerminalManager {
         const answer = foundCommand[0].callback(args);
         TerminalManager.Terminal.write(answer || "");
       } else {
-        TerminalManager.Terminal.writeln(`${keyword}: command not found`);
+        this.writeError(`${keyword}: command not found`, false);
       }
     }
     this.printPrompt();
@@ -188,5 +198,10 @@ export class TerminalManager {
       this.initializeTerminal();
     }
     this.isOpen = true;
+  }
+
+  public writeError(error: string, prompt = true): void {
+    TerminalManager.Terminal.writeln(`\x1b[31;1m${error}\x1b[0m`);
+    if (prompt) this.printPrompt();
   }
 }
