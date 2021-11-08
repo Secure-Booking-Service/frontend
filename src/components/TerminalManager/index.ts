@@ -139,16 +139,28 @@ export class TerminalManager {
   }
 
   private inputPreProcessing(event: KeyboardEvent): boolean {
-    if (event.type === "keydown") return true;
     switch (event.key) {
-      case "ArrowLeft":
+      case "ArrowLeft": {
         // Left pressed
+        if (event.type === "keyup") return false;
+        const cursor = TerminalManager.Terminal.buffer.normal.cursorX;
+        if (cursor > 2) {
+          this.write("\x1b[D");
+        }
         return false;
-      case "ArrowRight":
+      }
+      case "ArrowRight": {
         // Right pressed
+        if (event.type === "keyup") return false;
+        const cursor = TerminalManager.Terminal.buffer.normal.cursorX;
+        if (cursor < this.currentCommand.length + 2) {
+          this.write("\x1b[C");
+        }
         return false;
+      }
       case "ArrowUp": {
         // Up pressed
+        if (event.type === "keydown") return false;
         const cmd = this.commandHistory[this.commandHistoryPosition - 1];
         if (cmd) {
           this.commandHistoryPosition -= 1;
@@ -161,6 +173,7 @@ export class TerminalManager {
       }
       case "ArrowDown": {
         // Down pressed
+        if (event.type === "keydown") return false;
         const cmd = this.commandHistory[this.commandHistoryPosition + 1];
         if (cmd) {
           this.commandHistoryPosition += 1;
@@ -177,6 +190,7 @@ export class TerminalManager {
   }
 
   private inputProcessing(char: string): void {
+    const cursor = TerminalManager.Terminal.buffer.normal.cursorX;
     switch (char) {
       case "\u0003": // Ctrl+C
         TerminalManager.Terminal.write("^C");
@@ -189,25 +203,32 @@ export class TerminalManager {
         break;
       case "\u007F": // Backspace (DEL)
         // Do not delete the prompt
-        if (TerminalManager.Terminal.buffer.normal.cursorX > 2) {
-          TerminalManager.Terminal.write("\b \b");
+        if (cursor > 2) {
           if (this.currentCommand.length > 0) {
-            this.currentCommand = this.currentCommand.substr(
-              0,
-              this.currentCommand.length - 1
+            const first = this.currentCommand.slice(0, cursor - 3);
+            const last = this.currentCommand.slice(cursor - 2);
+            this.currentCommand = first + last;
+            const moveCursor = "\x1b[D".repeat(
+              this.currentCommand.length - cursor + 4
             );
+            TerminalManager.Terminal.write("\x1b[D" + last + " " + moveCursor);
           }
         }
         break;
       default:
-        // Print all other characters (if prrintable)
+        // Print all other characters (if printable)
         if (
           (char >= String.fromCharCode(0x20) &&
             char <= String.fromCharCode(0x7b)) ||
           char >= "\u00a0"
         ) {
-          this.currentCommand += char;
-          TerminalManager.Terminal.write(char);
+          const first = this.currentCommand.slice(0, cursor - 2);
+          const last = this.currentCommand.slice(cursor - 2);
+          this.currentCommand = first + char + last;
+          const moveCursor = "\x1b[D".repeat(
+            this.currentCommand.length - cursor + 1
+          );
+          TerminalManager.Terminal.write(char + last + moveCursor);
         }
     }
   }
