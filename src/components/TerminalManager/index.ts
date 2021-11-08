@@ -139,6 +139,10 @@ export class TerminalManager {
   }
 
   private inputPreProcessing(event: KeyboardEvent): boolean {
+    // Prevent terminal handling of ctrl + v
+    if (event.code === "KeyV" && event.ctrlKey) {
+      return false;
+    }
     switch (event.key) {
       case "ArrowLeft": {
         // Left pressed
@@ -228,7 +232,11 @@ export class TerminalManager {
           const moveCursor = "\x1b[D".repeat(
             this.currentCommand.length - cursor + 1
           );
-          TerminalManager.Terminal.write(char + last + moveCursor);
+          if (char.length === 1) {
+            TerminalManager.Terminal.write(char + last + moveCursor);
+          } else {
+            TerminalManager.Terminal.write(char + last);
+          }
         }
     }
   }
