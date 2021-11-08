@@ -1,4 +1,7 @@
 <template>
+  <div id="nav">
+    <router-link to="/">Back to Terminal</router-link>
+  </div>
   <div id="authentication">
     <form>
       <input
@@ -19,6 +22,19 @@ import {
   startRegistration,
   startAuthentication,
 } from "@simplewebauthn/browser";
+
+// Register terminal command
+import { TerminalManager } from "../components/TerminalManager/index";
+import router from "../router/index";
+
+TerminalManager.Instance.registerCommand({
+  command: "login",
+  description: "Opens the login page.",
+  callback: () => {
+    router.push("/authentication");
+    return "Opening login page...\r\n";
+  },
+});
 
 @Options({
   data: () => ({

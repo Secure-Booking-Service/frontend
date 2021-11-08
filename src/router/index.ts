@@ -13,6 +13,7 @@ const routes: Array<RouteRecordRaw> = [
     name: "Authentication",
     component: LoginAndRegistrationDummy,
   },
+  {
     path: "/manual",
     name: "Man Page",
     // route level code-splitting
