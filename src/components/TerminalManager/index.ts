@@ -91,6 +91,7 @@ export class TerminalManager {
       return false;
     }
     this.registeredCommands.push(newCommand);
+    // Sort commands alphabetically for printing with `help`
     this.registeredCommands.sort((a, b) => a.command.localeCompare(b.command));
     return true;
   }
@@ -102,16 +103,21 @@ export class TerminalManager {
    * and prints the welcome message.
    */
   private initializeTerminal(): void {
+    // Resize terminal to fit the parent element
     const fitAddon = new FitAddon();
     this.terminal.loadAddon(fitAddon);
     fitAddon.fit();
+    // Add raw keyboard event handler
     this.terminal.attachCustomKeyEventHandler(
       this.inputPreProcessing.bind(this)
     );
+    // Add key / paste event handler
     this.terminal.onData(this.inputProcessing.bind(this));
+    // Print welcome message
     this.terminal.writeln("Welcome to the Secure Booking Service!");
     this.terminal.writeln("Type `help` for a list of available commands.");
     this.printPrompt();
+    // Register basic commands
     this.registerCommand({
       command: "help",
       description: "Prints this help message.",
@@ -143,14 +149,16 @@ export class TerminalManager {
    * Searches and executes the command entered at the terminal.
    */
   private runCommand(): void {
+    // Seperate command and arguments
     const [keyword, args] = this.currentCommand.trim().split(" ");
     if (keyword.length > 0) {
       this.commandHistory.push(this.currentCommand);
-      this.terminal.writeln("");
+      this.terminal.writeln(""); // Newline for command output
       const foundCommand = this.registeredCommands.filter(
         (cmd) => cmd.command === keyword
       );
       if (foundCommand.length > 0) {
+        // Call command action
         const answer = foundCommand[0].callback(this, args);
         this.terminal.write(answer || "");
       } else {
@@ -166,13 +174,14 @@ export class TerminalManager {
    */
   private moveCursor(direction: "ArrowLeft" | "ArrowRight"): void {
     const cursor = this.terminal.buffer.normal.cursorX;
+    // Do not move over the prompt or the command end
     if (direction === "ArrowLeft" && cursor > 2) {
-      this.write("\x1b[D");
+      this.write("\x1b[D"); // Move cursor left
     } else if (
       direction === "ArrowRight" &&
       cursor < this.currentCommand.length + 2
     ) {
-      this.write("\x1b[C");
+      this.write("\x1b[C"); // Move cursor right
     }
   }
 
@@ -217,17 +226,18 @@ export class TerminalManager {
     switch (event.key) {
       case "ArrowLeft":
       case "ArrowRight":
-        // Left or right pressed
+        // Allow press and hold (ignore release)
         if (event.type === "keyup") return false;
         this.moveCursor(event.key);
         return false;
       case "ArrowUp":
       case "ArrowDown":
-        // Up or down pressed
+        // Do not allow press and hold (ignore press)
         if (event.type === "keydown") return false;
         this.loadHistoryCommand(event.key);
         return false;
       default:
+        // Continue processing input
         return true;
     }
   }
@@ -251,15 +261,15 @@ export class TerminalManager {
       case "\u007F": // Backspace (DEL)
         // Do not delete the prompt
         if (cursor > 2) {
-          if (this.currentCommand.length > 0) {
-            const first = this.currentCommand.slice(0, cursor - 3);
-            const last = this.currentCommand.slice(cursor - 2);
-            this.currentCommand = first + last;
-            const moveCursor = "\x1b[D".repeat(
-              this.currentCommand.length - cursor + 4
-            );
-            this.terminal.write("\x1b[D" + last + " " + moveCursor);
-          }
+          // Cut char at cursor position
+          const first = this.currentCommand.slice(0, cursor - 3);
+          const last = this.currentCommand.slice(cursor - 2);
+          this.currentCommand = first + last;
+          // Move cursor one char to the left, write remaining string again,
+          // overwrite old last char with a space and then move the cursor
+          // back to the cut position
+          const moveCursorBack = "\x1b[D".repeat(last.length + 1);
+          this.terminal.write("\x1b[D" + last + " " + moveCursorBack);
         }
         break;
       default:
@@ -269,17 +279,15 @@ export class TerminalManager {
             text <= String.fromCharCode(0x7b)) ||
           text >= "\u00a0"
         ) {
+          // Insert char / text at cursor position
           const first = this.currentCommand.slice(0, cursor - 2);
           const last = this.currentCommand.slice(cursor - 2);
           this.currentCommand = first + text + last;
-          const moveCursor = "\x1b[D".repeat(
-            this.currentCommand.length - cursor + 1
-          );
-          if (text.length === 1) {
-            this.terminal.write(text + last + moveCursor);
-          } else {
-            this.terminal.write(text + last);
-          }
+          // Overwrite old contents with the inserted char / text,
+          // followed by the remaining part and then move the cursor
+          // back to the insert position
+          const moveCursorBack = "\x1b[D".repeat(last.length);
+          this.terminal.write(text + last + moveCursorBack);
         }
     }
   }
@@ -289,8 +297,10 @@ export class TerminalManager {
    * @param parent The parent element to create the terminal in
    */
   public openTerminal(parent: HTMLElement | null): void {
+    // Router needs reopen on each view
     this.terminal.open(parent || document.createElement("div"));
     if (!this.isOpen) {
+      // Only initialize the terminal once
       this.initializeTerminal();
     }
     this.isOpen = true;
