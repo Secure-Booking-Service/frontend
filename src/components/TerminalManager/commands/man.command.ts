@@ -8,4 +8,4 @@ export const manCommand: ICommand = {
     router.push("/manual");
     return "Opening documentation page...\r\n";
   },
-}
+};

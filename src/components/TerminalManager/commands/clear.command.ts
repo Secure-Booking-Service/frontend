@@ -6,4 +6,4 @@ export const clearCommand: ICommand = {
   callback: async (manager) => {
     manager.clear();
   },
-}
+};
