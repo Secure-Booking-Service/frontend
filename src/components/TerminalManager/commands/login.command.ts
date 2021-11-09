@@ -18,7 +18,7 @@ export const loginCommand: ICommand = {
     // Validate that it is a valid email adress
     if (!isEmail(email))
       return manager.writeError("Please enter a valid email adress!");
-    
+
     manager.writeLine(`Login ${email} ...`);
 
     try {
@@ -52,7 +52,9 @@ export const loginCommand: ICommand = {
       }
 
       // Request failed locally - maybe no internet connection etc?
-      return manager.writeError("Something went wrong locally - Check internet?");
+      return manager.writeError(
+        "Something went wrong locally - Check internet?"
+      );
     }
   },
 };
