@@ -1,6 +1,7 @@
 import { Terminal } from "xterm";
 import { FitAddon } from "xterm-addon-fit";
 import router from "../../router/index";
+import ansiEscapes from 'ansi-escapes';
 
 /**
  * Object schema for registering a new command.
@@ -25,6 +26,8 @@ export class TerminalManager {
   private commandHistory: string[] = [];
   private commandHistoryPosition = 0;
   private isOpen = false;
+  private tColumns = 0; // Columns of the terminal
+  private tPosition = 0; // Position of cursor in current command
 
   /**
    * Contructs the main terminal object (singleton contructor)
@@ -73,6 +76,7 @@ export class TerminalManager {
   private printPrompt(): void {
     this.currentCommand = "";
     this.terminal.write("\r\n$ ");
+    //TODO: Add dynamic padding based on prompt (dynamic prompt)
   }
 
   /**
@@ -107,6 +111,7 @@ export class TerminalManager {
     const fitAddon = new FitAddon();
     this.terminal.loadAddon(fitAddon);
     fitAddon.fit();
+    this.tColumns = this.terminal.cols;
     // Add raw keyboard event handler
     this.terminal.attachCustomKeyEventHandler(
       this.inputPreProcessing.bind(this)
@@ -172,16 +177,60 @@ export class TerminalManager {
    * Moves the terminal prompt a character left or right.
    * @param direction The arrow key pressed
    */
-  private moveCursor(direction: "ArrowLeft" | "ArrowRight"): void {
-    const cursor = this.terminal.buffer.normal.cursorX;
+  private moveCursor(direction: "ArrowLeft" | "ArrowRight", count = 1): void {
+    const cursorX = this.terminal.buffer.normal.cursorX;
+    console.log(this.tPosition, (this.tPosition + 2) % this.terminal.cols);
     // Do not move over the prompt or the command end
-    if (direction === "ArrowLeft" && cursor > 2) {
-      this.write("\x1b[D"); // Move cursor left
-    } else if (
-      direction === "ArrowRight" &&
-      cursor < this.currentCommand.length + 2
-    ) {
-      this.write("\x1b[C"); // Move cursor right
+    if (direction === "ArrowLeft") {
+      if (this.tPosition == 0) {
+        // Do not move (already at prompt)
+        console.log("no move left");
+        return;
+      } else if (this.tPosition <= count) {
+        // Move until the prompt
+        console.log("move left to prompt", this.tPosition, 0);
+        this.write(ansiEscapes.cursorMove(-this.tPosition));
+        this.tPosition = 0;
+      } else if ((this.tPosition + 2) % this.terminal.cols < count) {
+        // Move requires line jump
+        const moves = ((this.tPosition + 2) % this.terminal.cols) + 1;
+        console.log("move left with line jump", moves, -1);
+        this.write(ansiEscapes.cursorMove(this.terminal.cols, -1));
+        this.tPosition -= moves;
+        this.moveCursor("ArrowLeft", count - moves);
+      } else {
+        // Move cursor left
+        console.log("move left", count, 0);
+        this.write(ansiEscapes.cursorMove(-count));
+        this.tPosition -= count;
+      }
+    } else if (direction === "ArrowRight") {
+      if (this.tPosition === this.currentCommand.length) {
+        // Do not move (already at the end of the command)
+        console.log("no move right");
+        return;
+      } else if (this.tPosition + count >= this.currentCommand.length) {
+        // Move until the end of the command
+        const currRow = Math.floor((this.tPosition + 2) / this.terminal.rows);
+        const destRow = Math.floor((this.tPosition + count + 2) / this.terminal.rows);
+        const currColumn = (this.tPosition + 2) % this.terminal.rows;
+        const destColumn = (this.currentCommand.length + 2) % this.terminal.rows;
+        console.log("move right to end", destColumn - currColumn, destRow - currRow);
+        this.write(ansiEscapes.cursorMove(destColumn - currColumn, destRow - currRow));
+        this.tPosition = this.currentCommand.length;
+      } else if (((this.tPosition + 2) % this.terminal.cols) + count >= this.terminal.cols) {
+        // Move requires line jump
+        const moves = this.terminal.cols - ((this.tPosition + 2) % this.terminal.cols);
+        console.log("move right with line jump", moves, -1);
+        this.write(ansiEscapes.cursorMove(-this.terminal.cols, +1));
+        this.tPosition += moves;
+        this.moveCursor("ArrowRight", count - moves);
+      } else {
+        // Move cursor right
+        console.log("move right", count);
+        this.write(ansiEscapes.cursorMove(+count));
+        this.tPosition += count;
+      }
     }
   }
 
@@ -219,6 +268,15 @@ export class TerminalManager {
    * @returns True if the event should be further processed internally by xterm
    */
   private inputPreProcessing(event: KeyboardEvent): boolean {
+    // Debug area start
+    if (event.key === "#") {
+      if (event.type === "keyup") {
+        this.moveCursor("ArrowRight", 10);
+      }
+      event.preventDefault();
+      return false;
+    }
+    // Debug area end
     // Prevent terminal handling of ctrl + v
     if (event.code === "KeyV" && event.ctrlKey) {
       return false;
@@ -248,6 +306,7 @@ export class TerminalManager {
    */
   private inputProcessing(text: string): void {
     const cursor = this.terminal.buffer.normal.cursorX;
+    const columns = this.terminal.cols;
     switch (text) {
       case "\u0003": // Ctrl+C
         this.terminal.write("^C");
@@ -257,6 +316,7 @@ export class TerminalManager {
         this.runCommand();
         this.commandHistoryPosition = this.commandHistory.length;
         this.currentCommand = "";
+        this.tPosition = 0;
         break;
       case "\u007F": // Backspace (DEL)
         // Do not delete the prompt
@@ -280,14 +340,16 @@ export class TerminalManager {
           text >= "\u00a0"
         ) {
           // Insert char / text at cursor position
-          const first = this.currentCommand.slice(0, cursor - 2);
-          const last = this.currentCommand.slice(cursor - 2);
+          const first = this.currentCommand.slice(0, this.tPosition);
+          const last = this.currentCommand.slice(this.tPosition);
+          console.log(first, text, last);
           this.currentCommand = first + text + last;
           // Overwrite old contents with the inserted char / text,
           // followed by the remaining part and then move the cursor
           // back to the insert position
-          const moveCursorBack = "\x1b[D".repeat(last.length);
+          const moveCursorBack = ansiEscapes.cursorMove(-last.length);
           this.terminal.write(text + last + moveCursorBack);
+          this.tPosition += text.length;
         }
     }
   }
@@ -313,6 +375,7 @@ export class TerminalManager {
    */
   public writeError(error: string, prompt = true): void {
     this.terminal.writeln(`\x1b[31;1m${error}\x1b[0m`);
+    //TODO: Chulk for unicode calculation?
     if (prompt) this.printPrompt();
   }
 
