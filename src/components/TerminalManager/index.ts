@@ -5,6 +5,7 @@ import {
   clearCommand,
   echoCommand,
   loginCommand,
+  logoutCommand,
   manCommand,
   registerCommand as registrationCommand,
 } from "./commands";
@@ -158,6 +159,7 @@ export class TerminalManager {
 
     // Register commands
     this.registerCommand(loginCommand);
+    this.registerCommand(logoutCommand);
     this.registerCommand(registrationCommand);
     this.registerCommand(echoCommand);
   }
