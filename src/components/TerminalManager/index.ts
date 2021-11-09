@@ -1,8 +1,13 @@
 import { Terminal } from "xterm";
 import { FitAddon } from "xterm-addon-fit";
-import router from "../../router/index";
 import ansiEscapes from 'ansi-escapes';
-import { clearCommand, echoCommand, loginCommand, manCommand } from "./commands";
+import {
+  clearCommand,
+  echoCommand,
+  loginCommand,
+  manCommand,
+  registerCommand as registrationCommand
+} from "./commands";
 
 /**
  * Object schema for registering a new command.
@@ -10,10 +15,13 @@ import { clearCommand, echoCommand, loginCommand, manCommand } from "./commands"
  * description: A short description printed by the `help`command
  * callback: The function to process the user input.
  */
-export interface ICommand { 
+export interface ICommand {
   command: string;
   description: string;
-  callback: (terminalMgr: TerminalManager, ...args: string[]) => Promise<string | void>;
+  callback: (
+    terminalMgr: TerminalManager,
+    ...args: string[]
+  ) => Promise<string | void>;
 }
 
 /**
@@ -93,7 +101,8 @@ export class TerminalManager {
     );
     if (existingCommand.length > 0) {
       this.writeError(
-        `Failed to register "${newCommand.command}": command already exists!`
+        `Failed to register "${newCommand.command}": command already exists!`,
+        true
       );
       return false;
     }
@@ -141,6 +150,7 @@ export class TerminalManager {
 
     // Register commands
     this.registerCommand(loginCommand);
+    this.registerCommand(registrationCommand);
     this.registerCommand(echoCommand);
   }
 
@@ -158,18 +168,18 @@ export class TerminalManager {
       );
       if (foundCommand.length > 0) {
         this.isLocked = true;
-        
+
         // Call command action
         const execution = foundCommand[0].callback(this, ...args);
         execution.then((answer) => this.terminal.write(answer || ""));
-        
+
         // Unlock terminal and print prompt
         execution.finally(() => {
           this.isLocked = false;
-          this.printPrompt(); 
+          this.printPrompt();
         });
       } else {
-        this.writeError(`${keyword}: command not found`, false);
+        this.writeError(`${keyword}: command not found`);
         this.printPrompt();
       }
     } else {
@@ -284,7 +294,7 @@ export class TerminalManager {
     
     // Block input while command is running
     if (this.isLocked) return false;
-    
+
     // Prevent terminal handling of ctrl + v
     if (event.code === "KeyV" && event.ctrlKey) {
       return false;
@@ -381,7 +391,7 @@ export class TerminalManager {
    * @param error The error string
    * @param prompt If the prompt should appear after printing the error
    */
-  public writeError(error: string, prompt = true): void {
+  public writeError(error: string, prompt = false): void {
     this.terminal.writeln(`\x1b[31;1m${error}\x1b[0m`);
     //TODO: Chulk for unicode calculation?
     if (prompt) this.printPrompt();
