@@ -7,7 +7,7 @@ import { apiErrorHandler } from "../apierrorhandler";
 
 export const registerCommand: ICommand = {
   command: "register",
-  description: "Register a new user with an email adress and token",
+  description: "Registers a new user with an email adress and token",
   callback: async (manager, ...args) => {
     const USAGE = "Usage: register [EMAIL] [TOKEN]";
 
@@ -21,7 +21,7 @@ export const registerCommand: ICommand = {
 
     // Validate that it is a valid email adress
     if (!isEmail(email))
-      return manager.writeError("Please enter a valid email adress!");
+      return manager.writeError("Please enter a valid email address!");
 
     // Validate that it is a valid token
     if (!isUUID(token, 4))
@@ -48,7 +48,7 @@ export const registerCommand: ICommand = {
 
       // 4. Successfully registered a new user!
       return manager.writeLine(
-        "Registration was successfull! You are now logged in as " + email
+        "Registration was successful! You are now logged in as " + email
       );
     } catch (error: unknown) {
       if (error instanceof Error && error.name == "AbortError") {

@@ -3,7 +3,7 @@ import { ICommand } from "..";
 
 export const logoutCommand: ICommand = {
   command: "logout",
-  description: "End your current user session",
+  description: "Ends your current user session",
   callback: async (manager) => {
     try {
       await store.dispatch("logout");

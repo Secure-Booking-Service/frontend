@@ -6,11 +6,11 @@ import { apiErrorHandler } from "../apierrorhandler";
 
 export const loginCommand: ICommand = {
   command: "login",
-  description: "Login with e-mail",
+  description: "Login with email",
   callback: async (manager, email) => {
     // Validate that email adress is provided
     if (email === undefined || email === "") {
-      manager.writeError("Please provide an email adress!");
+      manager.writeError("Please provide an email address!");
       manager.writeLine("Usage: login EMAIL ");
       return;
     }
