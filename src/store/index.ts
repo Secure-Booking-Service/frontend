@@ -2,7 +2,7 @@ import { createStore } from "vuex";
 import { api } from "./utils/ApiUtil";
 import StoreUtil from "./utils/StoreUtil";
 
-const token = localStorage.getItem("token");
+const token = sessionStorage.getItem("token");
 if (token) api.defaults.headers.common.Authorization = `Bearer ${token}`;
 
 export default createStore({
@@ -70,7 +70,7 @@ export default createStore({
             if (apiResponse.status === "success") {
               const jwt = apiResponse.data.accesstoken;
               api.defaults.headers.common.Authorization = `Bearer ${jwt}`;
-              localStorage.setItem("token", jwt);
+              sessionStorage.setItem("token", jwt);
               commit("SET_AUTH", jwt);
               resolve();
             } else {
@@ -115,7 +115,7 @@ export default createStore({
             if (apiResponse.status === "success") {
               const jwt = apiResponse.data.accesstoken;
               api.defaults.headers.common.Authorization = `Bearer ${jwt}`;
-              localStorage.setItem("token", jwt);
+              sessionStorage.setItem("token", jwt);
               commit("SET_AUTH", jwt);
               resolve();
             } else {
@@ -131,9 +131,12 @@ export default createStore({
     },
 
     logout(context) {
+      if (api.defaults.headers.common.Authorization === undefined) {
+        return Promise.reject();
+      }
       context.commit("SET_AUTH", null);
-      api.defaults.headers.common.Authorization = "";
-      localStorage.removeItem("token");
+      delete api.defaults.headers.common.Authorization;
+      sessionStorage.removeItem("token");
     },
   },
   getters: {
