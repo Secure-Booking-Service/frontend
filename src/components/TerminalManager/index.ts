@@ -82,6 +82,14 @@ export class TerminalManager {
   }
 
   /**
+   * Calculate cursor position in current line.
+   * @returns The 0 indexed cursor value
+   */
+  private getCursorPos(): number {
+    return (this.tPosition + 2) % this.tColumns;
+  }
+
+  /**
    * Prints a newline, followed by a $ prompt.
    */
   private printPrompt(): void {
@@ -162,6 +170,7 @@ export class TerminalManager {
     this.registerCommand(logoutCommand);
     this.registerCommand(registrationCommand);
     this.registerCommand(echoCommand);
+    //TODO: Hidden commands (klir, sudo, etc.)
   }
 
   /**
@@ -202,50 +211,40 @@ export class TerminalManager {
    * @param direction The arrow key pressed
    */
   private moveCursor(direction: "ArrowLeft" | "ArrowRight", count = 1): void {
-    console.log(this.tPosition, (this.tPosition + 2) % this.terminal.cols);
+    if (!count) return; // Zero move
     // Do not move over the prompt or the command end
     if (direction === "ArrowLeft") {
       if (this.tPosition == 0) {
         // Do not move (already at prompt)
-        console.log("no move left");
         return;
       } else if (this.tPosition <= count) {
         // Move until the prompt
-        console.log("move left to prompt", this.tPosition, 0);
         this.write(ansiEscapes.cursorMove(-this.tPosition));
         this.tPosition = 0;
       } else if ((this.tPosition + 2) % this.terminal.cols < count) {
         // Move requires line jump
         const moves = ((this.tPosition + 2) % this.terminal.cols) + 1;
-        console.log("move left with line jump", moves, -1);
         this.write(ansiEscapes.cursorMove(this.terminal.cols, -1));
         this.tPosition -= moves;
         this.moveCursor("ArrowLeft", count - moves);
       } else {
         // Move cursor left
-        console.log("move left", count, 0);
         this.write(ansiEscapes.cursorMove(-count));
         this.tPosition -= count;
       }
     } else if (direction === "ArrowRight") {
       if (this.tPosition === this.currentCommand.length) {
         // Do not move (already at the end of the command)
-        console.log("no move right");
         return;
       } else if (this.tPosition + count >= this.currentCommand.length) {
         // Move until the end of the command
-        const currRow = Math.floor((this.tPosition + 2) / this.terminal.rows);
+        const currRow = Math.floor((this.tPosition + 2) / this.terminal.cols);
         const destRow = Math.floor(
-          (this.tPosition + count + 2) / this.terminal.rows
+          (this.tPosition + count + 2) / this.terminal.cols
         );
-        const currColumn = (this.tPosition + 2) % this.terminal.rows;
+        const currColumn = (this.tPosition + 2) % this.terminal.cols;
         const destColumn =
-          (this.currentCommand.length + 2) % this.terminal.rows;
-        console.log(
-          "move right to end",
-          destColumn - currColumn,
-          destRow - currRow
-        );
+          (this.currentCommand.length + 2) % this.terminal.cols;
         this.write(
           ansiEscapes.cursorMove(destColumn - currColumn, destRow - currRow)
         );
@@ -257,13 +256,11 @@ export class TerminalManager {
         // Move requires line jump
         const moves =
           this.terminal.cols - ((this.tPosition + 2) % this.terminal.cols);
-        console.log("move right with line jump", moves, -1);
         this.write(ansiEscapes.cursorMove(-this.terminal.cols, +1));
         this.tPosition += moves;
         this.moveCursor("ArrowRight", count - moves);
       } else {
         // Move cursor right
-        console.log("move right", count);
         this.write(ansiEscapes.cursorMove(+count));
         this.tPosition += count;
       }
@@ -275,7 +272,6 @@ export class TerminalManager {
    * @param direction The arrow key pressed
    */
   private loadHistoryCommand(direction: "ArrowUp" | "ArrowDown"): void {
-    const cursor = this.terminal.buffer.normal.cursorX;
     // The change to the current position in history depending on the pressed key
     const posChange = direction === "ArrowUp" ? -1 : 1;
     // Get the previous / next command if exists
@@ -284,13 +280,14 @@ export class TerminalManager {
       // Apply history position change
       this.commandHistoryPosition += posChange;
       // Clear all characters from the current terminal line
-      const cursorOffsetToLineEnd = this.currentCommand.length - (cursor - 2);
+      const cursorOffsetToLineEnd =
+        this.currentCommand.length - (this.getCursorPos() - 2);
       if (cursorOffsetToLineEnd !== 0) {
         // Clear characters to the right of the cursor
         this.write(" ".repeat(cursorOffsetToLineEnd));
       }
       // Clear characters to the left of the cursor
-      const chars = cursor + cursorOffsetToLineEnd - 2;
+      const chars = this.getCursorPos() + cursorOffsetToLineEnd - 2;
       this.write("\b \b".repeat(chars));
       // Write history command
       this.write(cmd);
@@ -307,7 +304,7 @@ export class TerminalManager {
     // Debug area start
     if (event.key === "#") {
       if (event.type === "keyup") {
-        this.moveCursor("ArrowRight", 10);
+        this.terminal.write(ansiEscapes.cursorSavePosition);
       }
       event.preventDefault();
       return false;
@@ -345,24 +342,34 @@ export class TerminalManager {
    * @param text A single entered character or pasted string
    */
   private inputProcessing(text: string): void {
-    const cursor = this.terminal.buffer.normal.cursorX;
     switch (text) {
       case "\u0003": // Ctrl+C
+        // Move cursor to the end of the command
+        this.moveCursor(
+          "ArrowRight",
+          this.currentCommand.length - this.tPosition
+        );
         this.terminal.write("^C");
         this.printPrompt();
         break;
       case "\r": // Enter
+        // Move cursor to the end of the command
+        this.moveCursor(
+          "ArrowRight",
+          this.currentCommand.length - this.tPosition
+        );
         this.runCommand();
         this.commandHistoryPosition = this.commandHistory.length;
         this.currentCommand = "";
         this.tPosition = 0;
         break;
       case "\u007F": // Backspace (DEL)
+        // TODO: Fix / update backspace
         // Do not delete the prompt
-        if (cursor > 2) {
+        if (this.getCursorPos() > 2) {
           // Cut char at cursor position
-          const first = this.currentCommand.slice(0, cursor - 3);
-          const last = this.currentCommand.slice(cursor - 2);
+          const first = this.currentCommand.slice(0, this.getCursorPos() - 3);
+          const last = this.currentCommand.slice(this.getCursorPos() - 2);
           this.currentCommand = first + last;
           // Move cursor one char to the left, write remaining string again,
           // overwrite old last char with a space and then move the cursor
@@ -381,14 +388,19 @@ export class TerminalManager {
           // Insert char / text at cursor position
           const first = this.currentCommand.slice(0, this.tPosition);
           const last = this.currentCommand.slice(this.tPosition);
-          console.log(first, text, last);
           this.currentCommand = first + text + last;
           // Overwrite old contents with the inserted char / text,
           // followed by the remaining part and then move the cursor
-          // back to the insert position
-          const moveCursorBack = ansiEscapes.cursorMove(-last.length);
-          this.terminal.write(text + last + moveCursorBack);
-          this.tPosition += text.length;
+          // back to the insert position;
+          if (last.length > 0) {
+            this.terminal.write(ansiEscapes.cursorSavePosition);
+            this.terminal.write(text + last);
+            this.terminal.write(ansiEscapes.cursorRestorePosition);
+            this.moveCursor("ArrowRight", text.length);
+          } else {
+            this.terminal.write(text);
+            this.tPosition += text.length;
+          }
         }
     }
   }
@@ -439,5 +451,6 @@ export class TerminalManager {
    */
   public clear(): void {
     this.terminal.clear();
+    // TODO: Clear everything besides prompt
   }
 }
