@@ -60,8 +60,8 @@ export const registerCommand: ICommand = {
       }
 
       if (
-        (error as any).code !== undefined ||
-        (error as any).error !== undefined
+        (error as any)?.code !== undefined ||
+        (error as any)?.error !== undefined
       ) {
         return apiErrorHandler(manager, error as any);
       }
