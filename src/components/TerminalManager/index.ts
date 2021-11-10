@@ -1,6 +1,6 @@
 import { Terminal } from "xterm";
 import { FitAddon } from "xterm-addon-fit";
-import ansiEscapes from 'ansi-escapes';
+import ansiEscapes from "ansi-escapes";
 import {
   clearCommand,
   echoCommand,
@@ -202,7 +202,6 @@ export class TerminalManager {
    * @param direction The arrow key pressed
    */
   private moveCursor(direction: "ArrowLeft" | "ArrowRight", count = 1): void {
-    const cursorX = this.terminal.buffer.normal.cursorX;
     console.log(this.tPosition, (this.tPosition + 2) % this.terminal.cols);
     // Do not move over the prompt or the command end
     if (direction === "ArrowLeft") {
@@ -236,15 +235,28 @@ export class TerminalManager {
       } else if (this.tPosition + count >= this.currentCommand.length) {
         // Move until the end of the command
         const currRow = Math.floor((this.tPosition + 2) / this.terminal.rows);
-        const destRow = Math.floor((this.tPosition + count + 2) / this.terminal.rows);
+        const destRow = Math.floor(
+          (this.tPosition + count + 2) / this.terminal.rows
+        );
         const currColumn = (this.tPosition + 2) % this.terminal.rows;
-        const destColumn = (this.currentCommand.length + 2) % this.terminal.rows;
-        console.log("move right to end", destColumn - currColumn, destRow - currRow);
-        this.write(ansiEscapes.cursorMove(destColumn - currColumn, destRow - currRow));
+        const destColumn =
+          (this.currentCommand.length + 2) % this.terminal.rows;
+        console.log(
+          "move right to end",
+          destColumn - currColumn,
+          destRow - currRow
+        );
+        this.write(
+          ansiEscapes.cursorMove(destColumn - currColumn, destRow - currRow)
+        );
         this.tPosition = this.currentCommand.length;
-      } else if (((this.tPosition + 2) % this.terminal.cols) + count >= this.terminal.cols) {
+      } else if (
+        ((this.tPosition + 2) % this.terminal.cols) + count >=
+        this.terminal.cols
+      ) {
         // Move requires line jump
-        const moves = this.terminal.cols - ((this.tPosition + 2) % this.terminal.cols);
+        const moves =
+          this.terminal.cols - ((this.tPosition + 2) % this.terminal.cols);
         console.log("move right with line jump", moves, -1);
         this.write(ansiEscapes.cursorMove(-this.terminal.cols, +1));
         this.tPosition += moves;
@@ -301,7 +313,7 @@ export class TerminalManager {
       return false;
     }
     // Debug area end
-    
+
     // Block input while command is running
     if (this.isLocked) return false;
 
@@ -334,7 +346,6 @@ export class TerminalManager {
    */
   private inputProcessing(text: string): void {
     const cursor = this.terminal.buffer.normal.cursorX;
-    const columns = this.terminal.cols;
     switch (text) {
       case "\u0003": // Ctrl+C
         this.terminal.write("^C");
