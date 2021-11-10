@@ -7,16 +7,6 @@ import { TerminalManager } from "../components/TerminalManager/index";
 import { Options, Vue } from "vue-class-component";
 import "xterm/css/xterm.css";
 
-// Demo area start
-TerminalManager.Instance.registerCommand({
-  command: "echo",
-  description: "Reflects all text input back to the console output.",
-  callback: (terminalMgr, userInput) => {
-    return userInput + "\r\n";
-  },
-});
-// Demo area end
-
 @Options({
   components: {},
   mounted() {

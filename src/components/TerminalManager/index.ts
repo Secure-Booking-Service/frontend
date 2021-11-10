@@ -1,7 +1,14 @@
 import { Terminal } from "xterm";
 import { FitAddon } from "xterm-addon-fit";
-import router from "../../router/index";
 import ansiEscapes from 'ansi-escapes';
+import {
+  clearCommand,
+  echoCommand,
+  loginCommand,
+  logoutCommand,
+  manCommand,
+  registerCommand as registrationCommand,
+} from "./commands";
 
 /**
  * Object schema for registering a new command.
@@ -12,7 +19,10 @@ import ansiEscapes from 'ansi-escapes';
 export interface ICommand {
   command: string;
   description: string;
-  callback: (terminalMgr: TerminalManager, userInput?: string) => string | void;
+  callback: (
+    terminalMgr: TerminalManager,
+    ...args: string[]
+  ) => Promise<string | void>;
 }
 
 /**
@@ -28,6 +38,7 @@ export class TerminalManager {
   private isOpen = false;
   private tColumns = 0; // Columns of the terminal
   private tPosition = 0; // Position of cursor in current command
+  private isLocked = false;
 
   /**
    * Contructs the main terminal object (singleton contructor)
@@ -83,14 +94,16 @@ export class TerminalManager {
    * Registers a new command to the terminal.
    * @param newCommand The command to register
    * @returns True if the command is registered successfully
+   * @private
    */
-  public registerCommand(newCommand: ICommand): boolean {
+  private registerCommand(newCommand: ICommand): boolean {
     const existingCommand = this.registeredCommands.filter(
       (cmd) => cmd.command === newCommand.command
     );
     if (existingCommand.length > 0) {
       this.writeError(
-        `Failed to register "${newCommand.command}": command already exists!`
+        `Failed to register "${newCommand.command}": command already exists!`,
+        true
       );
       return false;
     }
@@ -126,28 +139,29 @@ export class TerminalManager {
     this.registerCommand({
       command: "help",
       description: "Prints this help message.",
-      callback: (terminalMgr) => {
+      callback: async (terminalMgr) => {
         terminalMgr.writeLine("All available commands:\r\n");
+        const width =
+          this.registeredCommands.reduce((longest, cmd) => {
+            return longest.command.length >= cmd.command.length ? longest : cmd;
+          }).command.length + 4;
         for (const cmd of this.registeredCommands) {
-          terminalMgr.writeLine(`${cmd.command}\t\t${cmd.description}`);
+          terminalMgr.writeLine(
+            cmd.command +
+              " ".repeat(width - cmd.command.length) +
+              cmd.description
+          );
         }
       },
     });
-    this.registerCommand({
-      command: "man",
-      description: "Opens the documentation page.",
-      callback: () => {
-        router.push("/manual");
-        return "Opening documentation page...\r\n";
-      },
-    });
-    this.registerCommand({
-      command: "clear",
-      description: "Too much text? This helps.",
-      callback: () => {
-        this.terminal.clear();
-      },
-    });
+    this.registerCommand(manCommand);
+    this.registerCommand(clearCommand);
+
+    // Register commands
+    this.registerCommand(loginCommand);
+    this.registerCommand(logoutCommand);
+    this.registerCommand(registrationCommand);
+    this.registerCommand(echoCommand);
   }
 
   /**
@@ -155,7 +169,7 @@ export class TerminalManager {
    */
   private runCommand(): void {
     // Seperate command and arguments
-    const [keyword, args] = this.currentCommand.trim().split(" ");
+    const [keyword, ...args] = this.currentCommand.trim().split(" ");
     if (keyword.length > 0) {
       this.commandHistory.push(this.currentCommand);
       this.terminal.writeln(""); // Newline for command output
@@ -163,14 +177,24 @@ export class TerminalManager {
         (cmd) => cmd.command === keyword
       );
       if (foundCommand.length > 0) {
+        this.isLocked = true;
+
         // Call command action
-        const answer = foundCommand[0].callback(this, args);
-        this.terminal.write(answer || "");
+        const execution = foundCommand[0].callback(this, ...args);
+        execution.then((answer) => this.terminal.write(answer || ""));
+
+        // Unlock terminal and print prompt
+        execution.finally(() => {
+          this.isLocked = false;
+          this.printPrompt();
+        });
       } else {
-        this.writeError(`${keyword}: command not found`, false);
+        this.writeError(`${keyword}: command not found`);
+        this.printPrompt();
       }
+    } else {
+      this.printPrompt();
     }
-    this.printPrompt();
   }
 
   /**
@@ -277,6 +301,10 @@ export class TerminalManager {
       return false;
     }
     // Debug area end
+    
+    // Block input while command is running
+    if (this.isLocked) return false;
+
     // Prevent terminal handling of ctrl + v
     if (event.code === "KeyV" && event.ctrlKey) {
       return false;
@@ -373,7 +401,7 @@ export class TerminalManager {
    * @param error The error string
    * @param prompt If the prompt should appear after printing the error
    */
-  public writeError(error: string, prompt = true): void {
+  public writeError(error: string, prompt = false): void {
     this.terminal.writeln(`\x1b[31;1m${error}\x1b[0m`);
     //TODO: Chulk for unicode calculation?
     if (prompt) this.printPrompt();
@@ -393,5 +421,12 @@ export class TerminalManager {
    */
   public write(text: string): void {
     this.terminal.write(text);
+  }
+
+  /**
+   * Clears the terminal
+   */
+  public clear(): void {
+    this.terminal.clear();
   }
 }
