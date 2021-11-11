@@ -32,7 +32,7 @@ export const registerCommand: ICommand = {
     try {
       // 1. Get options from server
       const attestationOptions: any = await store.dispatch("startAttestation", {
-        username: email,
+        email,
         token,
       });
 
@@ -41,7 +41,7 @@ export const registerCommand: ICommand = {
 
       // 3. Send reponse to server
       await store.dispatch("finishAttestation", {
-        username: email,
+        email,
         token,
         attestationResponse,
       });

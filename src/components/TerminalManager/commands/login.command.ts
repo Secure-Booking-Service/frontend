@@ -33,7 +33,7 @@ export const loginCommand: ICommand = {
 
       // 3. Send solved challenge to server
       await store.dispatch("finishAssertion", {
-        username: email,
+        email,
         assertionResponse,
       });
 

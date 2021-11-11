@@ -85,11 +85,11 @@ export default createStore({
       });
     },
 
-    startAssertion({ commit }, username) {
+    startAssertion({ commit }, email) {
       commit("SET_AUTH");
       return new Promise<void>((resolve, reject) => {
         api
-          .get("/authentication/login", { params: { username } })
+          .get("/authentication/login", { params: { email } })
           .then(({ data: apiResponse }) => {
             if (apiResponse.status === "success") {
               commit("SET_AUTH", null);

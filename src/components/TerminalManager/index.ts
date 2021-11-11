@@ -200,7 +200,7 @@ export class TerminalManager {
       } else {
         this.writeError(`${keyword}: command not found`);
         this.printPrompt();
-      }
+      } 
     } else {
       this.printPrompt();
     }
