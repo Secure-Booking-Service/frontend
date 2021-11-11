@@ -82,14 +82,6 @@ export class TerminalManager {
   }
 
   /**
-   * Calculate cursor position in current line.
-   * @returns The 0 indexed cursor value
-   */
-  private getCursorPos(): number {
-    return (this.tPosition + 2) % this.tColumns;
-  }
-
-  /**
    * Prints a newline, followed by a $ prompt.
    */
   private printPrompt(): void {
@@ -200,7 +192,7 @@ export class TerminalManager {
       } else {
         this.writeError(`${keyword}: command not found`);
         this.printPrompt();
-      } 
+      }
     } else {
       this.printPrompt();
     }
@@ -219,7 +211,9 @@ export class TerminalManager {
         return;
       } else if (this.tPosition <= count) {
         // Move until the prompt
-        this.write(ansiEscapes.cursorMove(-this.tPosition));
+        const rows = Math.floor((this.tPosition + 2) / this.terminal.cols);
+        const cols = ((this.tPosition + 2) % this.terminal.cols) - 2;
+        this.write(ansiEscapes.cursorMove(-cols, -rows));
         this.tPosition = 0;
       } else if ((this.tPosition + 2) % this.terminal.cols < count) {
         // Move requires line jump
@@ -240,7 +234,7 @@ export class TerminalManager {
         // Move until the end of the command
         const currRow = Math.floor((this.tPosition + 2) / this.terminal.cols);
         const destRow = Math.floor(
-          (this.tPosition + count + 2) / this.terminal.cols
+          (this.currentCommand.length + 2) / this.terminal.cols
         );
         const currColumn = (this.tPosition + 2) % this.terminal.cols;
         const destColumn =
@@ -272,6 +266,8 @@ export class TerminalManager {
    * @param direction The arrow key pressed
    */
   private loadHistoryCommand(direction: "ArrowUp" | "ArrowDown"): void {
+    // TODO: Fix this function
+    const cursorPosition = (this.tPosition + 2) % this.tColumns;
     // The change to the current position in history depending on the pressed key
     const posChange = direction === "ArrowUp" ? -1 : 1;
     // Get the previous / next command if exists
@@ -280,15 +276,10 @@ export class TerminalManager {
       // Apply history position change
       this.commandHistoryPosition += posChange;
       // Clear all characters from the current terminal line
-      const cursorOffsetToLineEnd =
-        this.currentCommand.length - (this.getCursorPos() - 2);
-      if (cursorOffsetToLineEnd !== 0) {
-        // Clear characters to the right of the cursor
-        this.write(" ".repeat(cursorOffsetToLineEnd));
-      }
-      // Clear characters to the left of the cursor
-      const chars = this.getCursorPos() + cursorOffsetToLineEnd - 2;
-      this.write("\b \b".repeat(chars));
+      this.moveCursor("ArrowLeft", this.tPosition);
+      this.write(ansiEscapes.cursorSavePosition);
+      this.write(" ".repeat(this.currentCommand.length));
+      this.write(ansiEscapes.cursorRestorePosition);
       // Write history command
       this.write(cmd);
       this.currentCommand = cmd;
@@ -304,7 +295,10 @@ export class TerminalManager {
     // Debug area start
     if (event.key === "#") {
       if (event.type === "keyup") {
-        this.terminal.write(ansiEscapes.cursorSavePosition);
+        this.moveCursor("ArrowLeft", this.tPosition);
+        this.write(ansiEscapes.cursorSavePosition);
+        this.write(" ".repeat(this.currentCommand.length));
+        this.write(ansiEscapes.cursorRestorePosition);
       }
       event.preventDefault();
       return false;
@@ -366,16 +360,19 @@ export class TerminalManager {
       case "\u007F": // Backspace (DEL)
         // TODO: Fix / update backspace
         // Do not delete the prompt
-        if (this.getCursorPos() > 2) {
+        if (this.tPosition > 0) {
           // Cut char at cursor position
-          const first = this.currentCommand.slice(0, this.getCursorPos() - 3);
-          const last = this.currentCommand.slice(this.getCursorPos() - 2);
+          const first = this.currentCommand.slice(0, this.tPosition - 1);
+          const last = this.currentCommand.slice(this.tPosition);
           this.currentCommand = first + last;
-          // Move cursor one char to the left, write remaining string again,
+          // Move cursor one char to the left, save cursor position,
+          // write remaining string again,
           // overwrite old last char with a space and then move the cursor
           // back to the cut position
-          const moveCursorBack = "\x1b[D".repeat(last.length + 1);
-          this.terminal.write("\x1b[D" + last + " " + moveCursorBack);
+          this.moveCursor("ArrowLeft");
+          this.terminal.write(ansiEscapes.cursorSavePosition);
+          this.terminal.write(last + " ");
+          this.terminal.write(ansiEscapes.cursorRestorePosition);
         }
         break;
       default:
