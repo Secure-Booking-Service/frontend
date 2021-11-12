@@ -5,9 +5,14 @@ export const helpCommand: ICommand = {
   command: "help",
   description: "Prints this help message.",
   callback: async (manager) => {
+    // Filter hidden commands
+    const commands = manager.Commands.filter((cmd) => {
+      if (cmd.hidden) return false;
+      else return true;
+    });
     // Calculate max length of command and description of all commands
     // eslint-disable-next-line prefer-const
-    let { commandLength, descriptionLength } = manager.Commands.reduce(
+    let { commandLength, descriptionLength } = commands.reduce(
       ({ commandLength, descriptionLength } /* NOSONAR*/, cmd) => {
         const newCommandLength =
           commandLength > cmd.command.length
@@ -38,8 +43,9 @@ export const helpCommand: ICommand = {
         content: "All available commands",
       },
     };
-    const data = manager.Commands.map((cmd) => {
-      return [cmd.command, cmd.description];
+    const data = commands.map((cmd) => {
+      if (!cmd.hidden) return [cmd.command, cmd.description];
+      else return [];
     });
     const tableString = table(data, config).replaceAll("\n", "\r\n");
     manager.write(tableString);

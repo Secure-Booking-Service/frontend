@@ -10,6 +10,7 @@ import {
   logoutCommand,
   manCommand,
   registerCommand as registrationCommand,
+  sudoCommand,
 } from "./commands";
 
 /**
@@ -21,6 +22,7 @@ import {
 export interface ICommand {
   command: string;
   description: string;
+  hidden?: boolean;
   callback: (
     terminalMgr: TerminalManager,
     ...args: string[]
@@ -165,7 +167,6 @@ export class TerminalManager {
     // Add key / paste event handler
     this.terminal.onData(this.inputProcessing.bind(this));
     // Print welcome message
-    // TODO: Insert impressum link?
     this.terminal.writeln(
       `Welcome to the ${c.blue(c.bold("Secure Booking Service"))}!`
     );
@@ -183,6 +184,9 @@ export class TerminalManager {
     this.registerCommand(logoutCommand);
     this.registerCommand(registrationCommand);
     this.registerCommand(echoCommand);
+
+    // Register hidden commands
+    this.registerCommand(sudoCommand);
     //TODO: Hidden commands (klir, sudo, etc.)
   }
 
