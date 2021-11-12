@@ -32,13 +32,14 @@ export class TerminalManager {
   private static _instance: TerminalManager;
   private terminal: Terminal;
   private currentCommand = "";
+  private prompt = "$ ";
+  private pLength = 2; // The number of chars in the last line of the prompt
   private registeredCommands: ICommand[] = [];
   private commandHistory: string[] = [];
   private commandHistoryPosition = 0;
-  private isOpen = false;
-  private tColumns = 0; // Columns of the terminal
+  private isOpen = false; // If the terminal has been initialized already
   private tPosition = 0; // Position of cursor in current command
-  private isLocked = false;
+  private isLocked = false; // Locks terminal during cimmand execution
 
   /**
    * Contructs the main terminal object (singleton contructor)
@@ -86,8 +87,20 @@ export class TerminalManager {
    */
   private printPrompt(): void {
     this.currentCommand = "";
-    this.terminal.write("\r\n$ ");
+    this.terminal.write("\r\n" + this.prompt);
     //TODO: Add dynamic padding based on prompt (dynamic prompt)
+  }
+
+  /**
+   * Setter
+   * @param prompt The new prompt to use. Can include newlines
+   */
+  public set Prompt(prompt: string) {
+    this.prompt = prompt;
+    // Update length of prompt (last line)
+    const index = prompt.lastIndexOf("\n");
+    if (index == -1) this.pLength = prompt.length;
+    else this.pLength = prompt.length - index;
   }
 
   /**
@@ -124,7 +137,6 @@ export class TerminalManager {
     const fitAddon = new FitAddon();
     this.terminal.loadAddon(fitAddon);
     fitAddon.fit();
-    this.tColumns = this.terminal.cols;
     // Add raw keyboard event handler
     this.terminal.attachCustomKeyEventHandler(
       this.inputPreProcessing.bind(this)
@@ -132,11 +144,13 @@ export class TerminalManager {
     // Add key / paste event handler
     this.terminal.onData(this.inputProcessing.bind(this));
     // Print welcome message
+    // TODO: Insert impressum link?
     this.terminal.writeln("Welcome to the Secure Booking Service!");
     this.terminal.writeln("Type `help` for a list of available commands.");
     this.printPrompt();
     // Register basic commands
     this.registerCommand({
+      // TODO: Extract help cmd to file
       command: "help",
       description: "Prints this help message.",
       callback: async (terminalMgr) => {
@@ -221,12 +235,15 @@ export class TerminalManager {
     }
 
     // Move cusor and calculate potential line jumps
-    const currRow = Math.floor((this.tPosition + 2) / this.terminal.cols);
-    const destRow = Math.floor(
-      (this.tPosition + count + 2) / this.terminal.cols
+    const currRow = Math.floor(
+      (this.tPosition + this.pLength) / this.terminal.cols
     );
-    const currColumn = (this.tPosition + 2) % this.terminal.cols;
-    const destColumn = (this.tPosition + count + 2) % this.terminal.cols;
+    const destRow = Math.floor(
+      (this.tPosition + count + this.pLength) / this.terminal.cols
+    );
+    const currColumn = (this.tPosition + this.pLength) % this.terminal.cols;
+    const destColumn =
+      (this.tPosition + count + this.pLength) % this.terminal.cols;
     this.write(
       ansiEscapes.cursorMove(destColumn - currColumn, destRow - currRow)
     );
@@ -266,7 +283,7 @@ export class TerminalManager {
     // Debug area start
     if (event.key === "#") {
       if (event.type === "keyup") {
-        this.moveCursor(10);
+        this.Prompt = "root@localhost # ";
       }
       event.preventDefault();
       return false;
@@ -324,7 +341,6 @@ export class TerminalManager {
         this.tPosition = 0;
         break;
       case "\u007F": // Backspace (DEL)
-        // TODO: Fix / update backspace
         // Do not delete the prompt
         if (this.tPosition > 0) {
           // Cut char at cursor position
