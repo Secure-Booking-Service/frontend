@@ -203,62 +203,44 @@ export class TerminalManager {
    * @param direction The arrow key pressed
    */
   private moveCursor(direction: "ArrowLeft" | "ArrowRight", count = 1): void {
-    // TODO: Remove recursion and simplify?
     if (!count) return; // Zero move
-    // Do not move over the prompt or the command end
+
     if (direction === "ArrowLeft") {
-      if (this.tPosition == 0) {
-        // Do not move (already at prompt)
-        return;
-      } else if (this.tPosition <= count) {
-        // Move until the prompt
-        const rows = Math.floor((this.tPosition + 2) / this.terminal.cols);
-        const cols = ((this.tPosition + 2) % this.terminal.cols) - 2;
-        this.write(ansiEscapes.cursorMove(-cols, -rows));
-        this.tPosition = 0;
-      } else if ((this.tPosition + 2) % this.terminal.cols < count) {
-        // Move requires line jump
-        const moves = ((this.tPosition + 2) % this.terminal.cols) + 1;
-        this.write(ansiEscapes.cursorMove(this.terminal.cols, -1));
-        this.tPosition -= moves;
-        this.moveCursor("ArrowLeft", count - moves);
-      } else {
-        // Move cursor left
-        this.write(ansiEscapes.cursorMove(-count));
-        this.tPosition -= count;
-      }
+      // Do not move if already at the prompt
+      if (this.tPosition == 0) return;
+
+      // Do not move beyond the prompt
+      if (this.tPosition <= count) count = this.tPosition;
+
+      // Move cusor left and calculate potential line jumps
+      const currRow = Math.floor((this.tPosition + 2) / this.terminal.cols);
+      const destRow = Math.floor((this.tPosition - count + 2) / this.terminal.cols);
+      const currColumn = (this.tPosition + 2) % this.terminal.cols;
+      const destColumn = (this.tPosition - count + 2) % this.terminal.cols;
+      this.write(
+        ansiEscapes.cursorMove(destColumn - currColumn, destRow - currRow)
+      );
+      this.tPosition -= count;
     } else if (direction === "ArrowRight") {
-      if (this.tPosition === this.currentCommand.length) {
-        // Do not move (already at the end of the command)
-        return;
-      } else if (this.tPosition + count >= this.currentCommand.length) {
-        // Move until the end of the command
-        const currRow = Math.floor((this.tPosition + 2) / this.terminal.cols);
-        const destRow = Math.floor(
-          (this.currentCommand.length + 2) / this.terminal.cols
-        );
-        const currColumn = (this.tPosition + 2) % this.terminal.cols;
-        const destColumn =
-          (this.currentCommand.length + 2) % this.terminal.cols;
-        this.write(
-          ansiEscapes.cursorMove(destColumn - currColumn, destRow - currRow)
-        );
-        this.tPosition = this.currentCommand.length;
-      } else if (
-        ((this.tPosition + 2) % this.terminal.cols) + count >=
-        this.terminal.cols
-      ) {
-        // Move requires line jump
-        const moves =
-          this.terminal.cols - ((this.tPosition + 2) % this.terminal.cols);
-        this.write(ansiEscapes.cursorMove(-this.terminal.cols, +1));
-        this.tPosition += moves;
-        this.moveCursor("ArrowRight", count - moves);
-      } else {
-        // Move cursor right
-        this.write(ansiEscapes.cursorMove(+count));
-        this.tPosition += count;
+      // Do not move if already at the end of the command
+      if (this.tPosition === this.currentCommand.length) return;
+
+      // Do not move beyond the end of the current command
+      if (this.tPosition + count > this.currentCommand.length) {
+        count = this.currentCommand.length - this.tPosition;
       }
+
+      // Move cusor right and calculate potential line jumps
+      const currRow = Math.floor((this.tPosition + 2) / this.terminal.cols);
+      const destRow = Math.floor(
+        (this.tPosition + count + 2) / this.terminal.cols
+      );
+      const currColumn = (this.tPosition + 2) % this.terminal.cols;
+      const destColumn = (this.tPosition + count + 2) % this.terminal.cols;
+      this.write(
+        ansiEscapes.cursorMove(destColumn - currColumn, destRow - currRow)
+      );
+      this.tPosition += count;
     }
   }
 
@@ -295,10 +277,7 @@ export class TerminalManager {
     // Debug area start
     if (event.key === "#") {
       if (event.type === "keyup") {
-        this.moveCursor("ArrowLeft", this.tPosition);
-        this.write(ansiEscapes.cursorSavePosition);
-        this.write(" ".repeat(this.currentCommand.length));
-        this.write(ansiEscapes.cursorRestorePosition);
+        this.moveCursor("ArrowRight", 10);
       }
       event.preventDefault();
       return false;
