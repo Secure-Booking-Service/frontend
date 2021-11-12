@@ -1,6 +1,7 @@
 import { Terminal } from "xterm";
 import { FitAddon } from "xterm-addon-fit";
 import ansiEscapes from "ansi-escapes";
+import color from "ansi-colors";
 import {
   clearCommand,
   echoCommand,
@@ -406,7 +407,7 @@ export class TerminalManager {
    * @param prompt If the prompt should appear after printing the error
    */
   public writeError(error: string, prompt = false): void {
-    this.terminal.writeln(`\x1b[31;1m${error}\x1b[0m`);
+    this.terminal.writeln(color.red(color.bold(error)));
     //TODO: Chulk for unicode calculation?
     if (prompt) this.printPrompt();
   }
