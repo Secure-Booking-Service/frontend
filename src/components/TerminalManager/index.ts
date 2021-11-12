@@ -23,10 +23,7 @@ export interface ICommand {
   command: string;
   description: string;
   hidden?: boolean;
-  callback: (
-    terminalMgr: TerminalManager,
-    ...args: string[]
-  ) => Promise<string | void>;
+  callback: (terminalMgr: TerminalManager, ...args: string[]) => Promise<string | void>;
 }
 
 /**
@@ -129,14 +126,9 @@ export class TerminalManager {
    * @private
    */
   private registerCommand(newCommand: ICommand): boolean {
-    const existingCommand = this.registeredCommands.filter(
-      (cmd) => cmd.command === newCommand.command
-    );
+    const existingCommand = this.registeredCommands.filter((cmd) => cmd.command === newCommand.command);
     if (existingCommand.length > 0) {
-      this.writeError(
-        `Failed to register "${newCommand.command}": command already exists!`,
-        true
-      );
+      this.writeError(`Failed to register "${newCommand.command}": command already exists!`, true);
       return false;
     }
     this.registeredCommands.push(newCommand);
@@ -157,22 +149,14 @@ export class TerminalManager {
     this.terminal.loadAddon(fitAddon);
     fitAddon.fit();
     // Fit terminal on window resize
-    window.onresize = () => {
-      fitAddon.fit();
-    };
+    window.onresize = () => { fitAddon.fit(); };
     // Add raw keyboard event handler
-    this.terminal.attachCustomKeyEventHandler(
-      this.inputPreProcessing.bind(this)
-    );
+    this.terminal.attachCustomKeyEventHandler(this.inputPreProcessing.bind(this));
     // Add key / paste event handler
     this.terminal.onData(this.inputProcessing.bind(this));
     // Print welcome message
-    this.terminal.writeln(
-      `Welcome to the ${c.blue(c.bold("Secure Booking Service"))}!`
-    );
-    this.terminal.writeln(
-      `Type ${c.yellow(c.bold("help"))} for a list of available commands.`
-    );
+    this.terminal.writeln(`Welcome to the ${c.blue.bold("Secure Booking Service")}!`);
+    this.terminal.writeln(`Type ${c.yellow.bold("help")} for a list of available commands.`);
     this.printPrompt();
     // Register basic commands
     this.registerCommand(helpCommand);
@@ -198,10 +182,9 @@ export class TerminalManager {
     if (keyword.length > 0) {
       this.commandHistory.push(this.currentCommand);
       this.terminal.writeln(""); // Newline for command output
-      const foundCommand = this.registeredCommands.filter(
-        (cmd) => cmd.command === keyword
-      );
+      const foundCommand = this.registeredCommands.filter((cmd) => cmd.command === keyword);
       if (foundCommand.length == 1) {
+        // Lock terminal during command execution
         this.isLocked = true;
 
         // Call command action
@@ -235,7 +218,8 @@ export class TerminalManager {
       if (this.tPosition + count > this.currentCommand.length) {
         count = this.currentCommand.length - this.tPosition;
       }
-    } else if (count < 0) {
+    }
+    else if (count < 0) {
       // Do not move left if already at the prompt
       if (this.tPosition == 0) return;
 
@@ -247,18 +231,12 @@ export class TerminalManager {
     }
 
     // Move cusor and calculate potential line jumps
-    const currRow = Math.floor(
-      (this.tPosition + this.pLength) / this.terminal.cols
-    );
-    const destRow = Math.floor(
-      (this.tPosition + count + this.pLength) / this.terminal.cols
-    );
+    const currRow = Math.floor((this.tPosition + this.pLength) / this.terminal.cols);
+    const destRow = Math.floor((this.tPosition + count + this.pLength) / this.terminal.cols);
     const currColumn = (this.tPosition + this.pLength) % this.terminal.cols;
     const destColumn =
       (this.tPosition + count + this.pLength) % this.terminal.cols;
-    this.write(
-      ansiEscapes.cursorMove(destColumn - currColumn, destRow - currRow)
-    );
+    this.write(ansiEscapes.cursorMove(destColumn - currColumn, destRow - currRow));
     this.tPosition += count;
   }
 
@@ -266,14 +244,12 @@ export class TerminalManager {
    * Loads a command from the command history.
    * @param direction The arrow key pressed
    */
-  private loadHistoryCommand(direction: "ArrowUp" | "ArrowDown"): void {
-    // The change to the current position in history depending on the pressed key
-    const posChange = direction === "ArrowUp" ? -1 : 1;
+  private loadHistoryCommand(direction: number): void {
     // Get the previous / next command if exists
-    const cmd = this.commandHistory[this.commandHistoryPosition + posChange];
+    const cmd = this.commandHistory[this.commandHistoryPosition + direction];
     if (cmd) {
       // Apply history position change
-      this.commandHistoryPosition += posChange;
+      this.commandHistoryPosition += direction;
       // Clear all characters from the current terminal line
       this.moveCursor(-this.tPosition);
       this.write(ansiEscapes.cursorSavePosition);
@@ -299,22 +275,27 @@ export class TerminalManager {
     if (event.code === "KeyV" && event.ctrlKey) {
       return false;
     }
+
     switch (event.key) {
       case "ArrowLeft":
         // Allow press and hold (ignore release)
-        if (event.type === "keyup") return false;
-        this.moveCursor(-1);
+        if (event.type !== "keyup")
+          this.moveCursor(-1);
         return false;
       case "ArrowRight":
         // Allow press and hold (ignore release)
-        if (event.type === "keyup") return false;
-        this.moveCursor(+1);
+        if (event.type !== "keyup")
+          this.moveCursor(+1);
         return false;
       case "ArrowUp":
+        // Do not allow press and hold (ignore press)
+        if (event.type !== "keydown")
+          this.loadHistoryCommand(-1);
+        return false;
       case "ArrowDown":
         // Do not allow press and hold (ignore press)
-        if (event.type === "keydown") return false;
-        this.loadHistoryCommand(event.key);
+        if (event.type !== "keydown")
+          this.loadHistoryCommand(+1);
         return false;
       default:
         // Continue processing input
@@ -361,11 +342,9 @@ export class TerminalManager {
         break;
       default:
         // Print all other characters (if printable)
-        if (
-          (text >= String.fromCharCode(0x20) &&
-            text <= String.fromCharCode(0x7b)) ||
-          text >= "\u00a0"
-        ) {
+        if ((text >= String.fromCharCode(0x20) &&
+          text <= String.fromCharCode(0x7b)) ||
+          text >= "\u00a0") {
           // Insert char / text at cursor position
           const first = this.currentCommand.slice(0, this.tPosition);
           const last = this.currentCommand.slice(this.tPosition);
@@ -406,7 +385,7 @@ export class TerminalManager {
    * @param prompt If the prompt should appear after printing the error
    */
   public writeError(error: string, prompt = false): void {
-    this.terminal.writeln(c.red(c.bold(error)));
+    this.terminal.writeln(c.red.bold(error));
     if (prompt) this.printPrompt();
   }
 

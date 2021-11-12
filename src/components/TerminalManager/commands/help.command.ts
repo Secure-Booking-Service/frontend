@@ -6,22 +6,17 @@ export const helpCommand: ICommand = {
   description: "Prints this help message.",
   callback: async (manager) => {
     // Filter hidden commands
-    const commands = manager.Commands.filter((cmd) => {
-      if (cmd.hidden) return false;
-      else return true;
-    });
+    const commands = manager.Commands.filter((cmd) => { return !cmd.hidden; });
     // Calculate max length of command and description of all commands
     // eslint-disable-next-line prefer-const
     let { commandLength, descriptionLength } = commands.reduce(
-      ({ commandLength, descriptionLength } /* NOSONAR*/, cmd) => {
-        const newCommandLength =
-          commandLength > cmd.command.length
-            ? commandLength
-            : cmd.command.length;
-        const newDescriptionLength =
-          descriptionLength > cmd.description.length
-            ? descriptionLength
-            : cmd.description.length;
+      (values, cmd) => {
+        const newCommandLength = values.commandLength > cmd.command.length
+          ? values.commandLength
+          : cmd.command.length;
+        const newDescriptionLength = values.descriptionLength > cmd.description.length
+          ? values.descriptionLength
+          : cmd.description.length;
         return {
           commandLength: newCommandLength,
           descriptionLength: newDescriptionLength,
@@ -43,10 +38,7 @@ export const helpCommand: ICommand = {
         content: "All available commands",
       },
     };
-    const data = commands.map((cmd) => {
-      if (!cmd.hidden) return [cmd.command, cmd.description];
-      else return [];
-    });
+    const data = commands.map((cmd) => [cmd.command, cmd.description]);
     const tableString = table(data, config).replaceAll("\n", "\r\n");
     manager.write(tableString);
   },
