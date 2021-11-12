@@ -40,7 +40,7 @@ export class TerminalManager {
   private commandHistoryPosition = 0;
   private isOpen = false; // If the terminal has been initialized already
   private tPosition = 0; // Position of cursor in current command
-  private isLocked = false; // Locks terminal during cimmand execution
+  private isLocked = false; // Locks terminal during command execution
 
   /**
    * Contructs the main terminal object (singleton contructor)
@@ -138,6 +138,10 @@ export class TerminalManager {
     const fitAddon = new FitAddon();
     this.terminal.loadAddon(fitAddon);
     fitAddon.fit();
+    // Fit terminal on window resize
+    window.onresize = () => {
+      fitAddon.fit();
+    };
     // Add raw keyboard event handler
     this.terminal.attachCustomKeyEventHandler(
       this.inputPreProcessing.bind(this)
