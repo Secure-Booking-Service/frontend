@@ -203,6 +203,7 @@ export class TerminalManager {
    * @param direction The arrow key pressed
    */
   private moveCursor(direction: "ArrowLeft" | "ArrowRight", count = 1): void {
+    // TODO: Remove recursion and simplify?
     if (!count) return; // Zero move
     // Do not move over the prompt or the command end
     if (direction === "ArrowLeft") {
@@ -266,8 +267,6 @@ export class TerminalManager {
    * @param direction The arrow key pressed
    */
   private loadHistoryCommand(direction: "ArrowUp" | "ArrowDown"): void {
-    // TODO: Fix this function
-    const cursorPosition = (this.tPosition + 2) % this.tColumns;
     // The change to the current position in history depending on the pressed key
     const posChange = direction === "ArrowUp" ? -1 : 1;
     // Get the previous / next command if exists
@@ -282,6 +281,7 @@ export class TerminalManager {
       this.write(ansiEscapes.cursorRestorePosition);
       // Write history command
       this.write(cmd);
+      this.tPosition = cmd.length;
       this.currentCommand = cmd;
     }
   }
