@@ -199,49 +199,36 @@ export class TerminalManager {
   }
 
   /**
-   * Moves the terminal prompt a character left or right.
-   * @param direction The arrow key pressed
+   * Moves the terminal prompt left or right.
+   * @param count Negative (left) or positive (right) move count
    */
-  private moveCursor(direction: "ArrowLeft" | "ArrowRight", count = 1): void {
-    if (!count) return; // Zero move
+  private moveCursor(count: number): void {
+    // Zero move
+    if (!count) return;
 
-    if (direction === "ArrowLeft") {
-      // Do not move if already at the prompt
-      if (this.tPosition == 0) return;
+    // Do not move if already at the prompt
+    if (count < 0 && this.tPosition == 0) return;
 
-      // Do not move beyond the prompt
-      if (this.tPosition <= count) count = this.tPosition;
+    // Do not move if already at the end of the command
+    if (count > 0 && this.tPosition === this.currentCommand.length) return;
 
-      // Move cusor left and calculate potential line jumps
-      const currRow = Math.floor((this.tPosition + 2) / this.terminal.cols);
-      const destRow = Math.floor((this.tPosition - count + 2) / this.terminal.cols);
-      const currColumn = (this.tPosition + 2) % this.terminal.cols;
-      const destColumn = (this.tPosition - count + 2) % this.terminal.cols;
-      this.write(
-        ansiEscapes.cursorMove(destColumn - currColumn, destRow - currRow)
-      );
-      this.tPosition -= count;
-    } else if (direction === "ArrowRight") {
-      // Do not move if already at the end of the command
-      if (this.tPosition === this.currentCommand.length) return;
+    // Do not move beyond the prompt
+    if (count < 0 && this.tPosition + count < 0) count = -this.tPosition;
 
-      // Do not move beyond the end of the current command
-      if (this.tPosition + count > this.currentCommand.length) {
-        count = this.currentCommand.length - this.tPosition;
-      }
-
-      // Move cusor right and calculate potential line jumps
-      const currRow = Math.floor((this.tPosition + 2) / this.terminal.cols);
-      const destRow = Math.floor(
-        (this.tPosition + count + 2) / this.terminal.cols
-      );
-      const currColumn = (this.tPosition + 2) % this.terminal.cols;
-      const destColumn = (this.tPosition + count + 2) % this.terminal.cols;
-      this.write(
-        ansiEscapes.cursorMove(destColumn - currColumn, destRow - currRow)
-      );
-      this.tPosition += count;
+    // Do not move beyond the end of the current command
+    if (count > 0 && this.tPosition + count > this.currentCommand.length) {
+      count = this.currentCommand.length - this.tPosition;
     }
+
+    // Move cusor and calculate potential line jumps
+    const currRow = Math.floor((this.tPosition + 2) / this.terminal.cols);
+    const destRow = Math.floor((this.tPosition + count + 2) / this.terminal.cols);
+    const currColumn = (this.tPosition + 2) % this.terminal.cols;
+    const destColumn = (this.tPosition + count + 2) % this.terminal.cols;
+    this.write(
+      ansiEscapes.cursorMove(destColumn - currColumn, destRow - currRow)
+    );
+    this.tPosition += count;
   }
 
   /**
@@ -257,7 +244,7 @@ export class TerminalManager {
       // Apply history position change
       this.commandHistoryPosition += posChange;
       // Clear all characters from the current terminal line
-      this.moveCursor("ArrowLeft", this.tPosition);
+      this.moveCursor(-this.tPosition);
       this.write(ansiEscapes.cursorSavePosition);
       this.write(" ".repeat(this.currentCommand.length));
       this.write(ansiEscapes.cursorRestorePosition);
@@ -277,7 +264,7 @@ export class TerminalManager {
     // Debug area start
     if (event.key === "#") {
       if (event.type === "keyup") {
-        this.moveCursor("ArrowRight", 10);
+        this.moveCursor(10);
       }
       event.preventDefault();
       return false;
@@ -293,10 +280,14 @@ export class TerminalManager {
     }
     switch (event.key) {
       case "ArrowLeft":
+        // Allow press and hold (ignore release)
+        if (event.type === "keyup") return false;
+        this.moveCursor(-1);
+        return false;
       case "ArrowRight":
         // Allow press and hold (ignore release)
         if (event.type === "keyup") return false;
-        this.moveCursor(event.key);
+        this.moveCursor(+1);
         return false;
       case "ArrowUp":
       case "ArrowDown":
@@ -318,19 +309,13 @@ export class TerminalManager {
     switch (text) {
       case "\u0003": // Ctrl+C
         // Move cursor to the end of the command
-        this.moveCursor(
-          "ArrowRight",
-          this.currentCommand.length - this.tPosition
-        );
+        this.moveCursor(this.currentCommand.length - this.tPosition);
         this.terminal.write("^C");
         this.printPrompt();
         break;
       case "\r": // Enter
         // Move cursor to the end of the command
-        this.moveCursor(
-          "ArrowRight",
-          this.currentCommand.length - this.tPosition
-        );
+        this.moveCursor(this.currentCommand.length - this.tPosition);
         this.runCommand();
         this.commandHistoryPosition = this.commandHistory.length;
         this.currentCommand = "";
@@ -348,7 +333,7 @@ export class TerminalManager {
           // write remaining string again,
           // overwrite old last char with a space and then move the cursor
           // back to the cut position
-          this.moveCursor("ArrowLeft");
+          this.moveCursor(-1);
           this.terminal.write(ansiEscapes.cursorSavePosition);
           this.terminal.write(last + " ");
           this.terminal.write(ansiEscapes.cursorRestorePosition);
@@ -372,7 +357,7 @@ export class TerminalManager {
             this.terminal.write(ansiEscapes.cursorSavePosition);
             this.terminal.write(text + last);
             this.terminal.write(ansiEscapes.cursorRestorePosition);
-            this.moveCursor("ArrowRight", text.length);
+            this.moveCursor(text.length);
           } else {
             this.terminal.write(text);
             this.tPosition += text.length;
