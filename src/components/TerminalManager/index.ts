@@ -206,23 +206,25 @@ export class TerminalManager {
     // Zero move
     if (!count) return;
 
-    // Do not move if already at the prompt
+    // Do not move left if already at the prompt
     if (count < 0 && this.tPosition == 0) return;
 
-    // Do not move if already at the end of the command
+    // Do not move right if already at the end of the command
     if (count > 0 && this.tPosition === this.currentCommand.length) return;
 
-    // Do not move beyond the prompt
+    // Do not move left beyond the prompt
     if (count < 0 && this.tPosition + count < 0) count = -this.tPosition;
 
-    // Do not move beyond the end of the current command
+    // Do not move right beyond the end of the current command
     if (count > 0 && this.tPosition + count > this.currentCommand.length) {
       count = this.currentCommand.length - this.tPosition;
     }
 
     // Move cusor and calculate potential line jumps
     const currRow = Math.floor((this.tPosition + 2) / this.terminal.cols);
-    const destRow = Math.floor((this.tPosition + count + 2) / this.terminal.cols);
+    const destRow = Math.floor(
+      (this.tPosition + count + 2) / this.terminal.cols
+    );
     const currColumn = (this.tPosition + 2) % this.terminal.cols;
     const destColumn = (this.tPosition + count + 2) % this.terminal.cols;
     this.write(
@@ -411,7 +413,6 @@ export class TerminalManager {
    * Clears the terminal
    */
   public clear(): void {
-    this.terminal.clear();
-    // TODO: Clear everything besides prompt
+    this.terminal.write(ansiEscapes.clearTerminal);
   }
 }
