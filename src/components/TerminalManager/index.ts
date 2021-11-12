@@ -90,7 +90,6 @@ export class TerminalManager {
   private printPrompt(): void {
     this.currentCommand = "";
     this.terminal.write("\r\n" + this.prompt);
-    //TODO: Add dynamic padding based on prompt (dynamic prompt)
   }
 
   /**
@@ -415,7 +414,6 @@ export class TerminalManager {
    */
   public writeError(error: string, prompt = false): void {
     this.terminal.writeln(c.red(c.bold(error)));
-    //TODO: Chulk for unicode calculation?
     if (prompt) this.printPrompt();
   }
 
