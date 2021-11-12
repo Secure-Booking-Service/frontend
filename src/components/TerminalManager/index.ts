@@ -187,7 +187,6 @@ export class TerminalManager {
 
     // Register hidden commands
     this.registerCommand(sudoCommand);
-    //TODO: Hidden commands (klir, sudo, etc.)
   }
 
   /**
@@ -202,7 +201,7 @@ export class TerminalManager {
       const foundCommand = this.registeredCommands.filter(
         (cmd) => cmd.command === keyword
       );
-      if (foundCommand.length > 0) {
+      if (foundCommand.length == 1) {
         this.isLocked = true;
 
         // Call command action
@@ -293,16 +292,6 @@ export class TerminalManager {
    * @returns True if the event should be further processed internally by xterm
    */
   private inputPreProcessing(event: KeyboardEvent): boolean {
-    // Debug area start
-    if (event.key === "#") {
-      if (event.type === "keyup") {
-        this.Prompt = `${c.green(c.bold("root@localhost"))} # `;
-      }
-      event.preventDefault();
-      return false;
-    }
-    // Debug area end
-
     // Block input while command is running
     if (this.isLocked) return false;
 
