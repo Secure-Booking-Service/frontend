@@ -114,6 +114,14 @@ export class TerminalManager {
   }
 
   /**
+   * Getter
+   * @returns The current column width of the terminal
+   */
+  public get Cols(): number {
+    return this.terminal.cols;
+  }
+
+  /**
    * Registers a new command to the terminal.
    * @param newCommand The command to register
    * @returns True if the command is registered successfully
