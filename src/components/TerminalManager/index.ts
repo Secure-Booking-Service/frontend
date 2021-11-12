@@ -217,21 +217,23 @@ export class TerminalManager {
    * @param count Negative (left) or positive (right) move count
    */
   private moveCursor(count: number): void {
-    // Zero move
-    if (!count) return;
+    if (count > 0) {
+      // Do not move right if already at the end of the command
+      if (this.tPosition === this.currentCommand.length) return;
 
-    // Do not move left if already at the prompt
-    if (count < 0 && this.tPosition == 0) return;
+      // Do not move right beyond the end of the current command
+      if (this.tPosition + count > this.currentCommand.length) {
+        count = this.currentCommand.length - this.tPosition;
+      }
+    } else if (count < 0) {
+      // Do not move left if already at the prompt
+      if (this.tPosition == 0) return;
 
-    // Do not move right if already at the end of the command
-    if (count > 0 && this.tPosition === this.currentCommand.length) return;
-
-    // Do not move left beyond the prompt
-    if (count < 0 && this.tPosition + count < 0) count = -this.tPosition;
-
-    // Do not move right beyond the end of the current command
-    if (count > 0 && this.tPosition + count > this.currentCommand.length) {
-      count = this.currentCommand.length - this.tPosition;
+      // Do not move left beyond the prompt
+      if (this.tPosition + count < 0) count = -this.tPosition;
+    } else {
+      // Zero move
+      return;
     }
 
     // Move cusor and calculate potential line jumps
