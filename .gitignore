@@ -69,7 +69,7 @@ typings/
 .yarn-integrity
 
 # dotenv environment variables file
-.env
+.env.local
 .env.test
 
 # parcel-bundler cache (https://parceljs.org/)
@@ -126,3 +126,5 @@ pnpm-debug.log*
 *.njsproj
 *.sln
 *.sw?
+
+AntonsSpickzettel.js
