@@ -34,13 +34,17 @@ export class TerminalManager {
   private terminal: Terminal;
   private currentCommand = "";
   private prompt = "$ ";
-  private pLength = 2; // The number of chars in the last line of the prompt
+  /** The number of chars in the last line of the prompt */
+  private pLength = 2;
   private registeredCommands: ICommand[] = [];
   private commandHistory: string[] = [];
   private commandHistoryPosition = 0;
-  private isOpen = false; // If the terminal has been initialized already
-  private tPosition = 0; // Position of cursor in current command
-  private isLocked = false; // Locks terminal during command execution
+  /** If the terminal has been initialized already */
+  private isOpen = false;
+  /** Position of cursor in current command */
+  private tPosition = 0;
+  /** Locks terminal during command execution */
+  private isLocked = false;
 
   /**
    * Contructs the main terminal object (singleton contructor)
@@ -99,7 +103,7 @@ export class TerminalManager {
     this.prompt = prompt;
     // Update length of prompt (last line)
     const index = prompt.lastIndexOf("\n");
-    if (index == -1) this.pLength = prompt.length;
+    if (index === -1) this.pLength = prompt.length;
     else this.pLength = prompt.length - index;
   }
 
@@ -183,7 +187,7 @@ export class TerminalManager {
       this.commandHistory.push(this.currentCommand);
       this.terminal.writeln(""); // Newline for command output
       const foundCommand = this.registeredCommands.filter((cmd) => cmd.command === keyword);
-      if (foundCommand.length == 1) {
+      if (foundCommand.length === 1) {
         // Lock terminal during command execution
         this.isLocked = true;
 
@@ -206,7 +210,7 @@ export class TerminalManager {
   }
 
   /**
-   * Moves the terminal prompt left or right.
+   * Moves the terminal cursor left or right.
    * @param count Negative (left) or positive (right) move count
    */
   private moveCursor(count: number): void {
@@ -221,14 +225,11 @@ export class TerminalManager {
     }
     else if (count < 0) {
       // Do not move left if already at the prompt
-      if (this.tPosition == 0) return;
+      if (this.tPosition === 0) return;
 
       // Do not move left beyond the prompt
       if (this.tPosition + count < 0) count = -this.tPosition;
-    } else {
-      // Zero move
-      return;
-    }
+    } else return; // Zero move
 
     // Move cusor and calculate potential line jumps
     const currRow = Math.floor((this.tPosition + this.pLength) / this.terminal.cols);
@@ -247,19 +248,18 @@ export class TerminalManager {
   private loadHistoryCommand(direction: number): void {
     // Get the previous / next command if exists
     const cmd = this.commandHistory[this.commandHistoryPosition + direction];
-    if (cmd) {
-      // Apply history position change
-      this.commandHistoryPosition += direction;
-      // Clear all characters from the current terminal line
-      this.moveCursor(-this.tPosition);
-      this.write(ansiEscapes.cursorSavePosition);
-      this.write(" ".repeat(this.currentCommand.length));
-      this.write(ansiEscapes.cursorRestorePosition);
-      // Write history command
-      this.write(cmd);
-      this.tPosition = cmd.length;
-      this.currentCommand = cmd;
-    }
+    if (cmd === undefined) return;
+    // Apply history position change
+    this.commandHistoryPosition += direction;
+    // Clear all characters from the current terminal line
+    this.moveCursor(-this.tPosition);
+    this.write(ansiEscapes.cursorSavePosition);
+    this.write(" ".repeat(this.currentCommand.length));
+    this.write(ansiEscapes.cursorRestorePosition);
+    // Write history command
+    this.write(cmd);
+    this.tPosition = cmd.length;
+    this.currentCommand = cmd;
   }
 
   /**
@@ -342,9 +342,8 @@ export class TerminalManager {
         break;
       default:
         // Print all other characters (if printable)
-        if ((text >= String.fromCharCode(0x20) &&
-          text <= String.fromCharCode(0x7b)) ||
-          text >= "\u00a0") {
+        if ((text >= String.fromCharCode(0x20) && text <= String.fromCharCode(0x7b))
+           || text >= "\u00a0") {
           // Insert char / text at cursor position
           const first = this.currentCommand.slice(0, this.tPosition);
           const last = this.currentCommand.slice(this.tPosition);
@@ -370,7 +369,6 @@ export class TerminalManager {
    * @param parent The parent element to create the terminal in
    */
   public openTerminal(parent: HTMLElement | null): void {
-    // Router needs reopen on each view
     this.terminal.open(parent || document.createElement("div"));
     if (!this.isOpen) {
       // Only initialize the terminal once
