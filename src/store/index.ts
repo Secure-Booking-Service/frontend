@@ -1,6 +1,7 @@
 import { createStore } from "vuex";
 import { api } from "./utils/ApiUtil";
 import StoreUtil from "./utils/StoreUtil";
+import booking from './modules/booking';
 
 const token = sessionStorage.getItem("token");
 if (token) api.defaults.headers.common.Authorization = `Bearer ${token}`;
@@ -143,5 +144,7 @@ export default createStore({
     isLoggedIn: (state) => !!state.auth.data,
     authGetStatus: (state) => state.auth.status,
   },
-  modules: {},
+  modules: {
+    booking
+  },
 });
