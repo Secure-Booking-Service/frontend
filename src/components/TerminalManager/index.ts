@@ -11,6 +11,7 @@ import {
   manCommand,
   registerCommand as registrationCommand,
   sudoCommand,
+  bookingCommand,
 } from "./commands";
 
 /**
@@ -172,6 +173,7 @@ export class TerminalManager {
     this.registerCommand(logoutCommand);
     this.registerCommand(registrationCommand);
     this.registerCommand(echoCommand);
+    this.registerCommand(bookingCommand);
 
     // Register hidden commands
     this.registerCommand(sudoCommand);

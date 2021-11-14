@@ -6,3 +6,4 @@ export { echoCommand } from "./echo.command";
 export { registerCommand } from "./register.command";
 export { helpCommand } from "./help.command";
 export { sudoCommand } from "./sudo.hidden.command";
+export { bookingCommand } from './booking';
