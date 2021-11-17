@@ -4,11 +4,11 @@ import { addCommand } from "./add.command";
 import { listCommand } from "./list.command";
 import { removeCommand } from "./remove.command";
 
-export const passangerCommand: ICommand = {
-  command: "passanger",
-  description: "Add, list and remove passangers from the booking",
+export const passengerCommand: ICommand = {
+  command: "passenger",
+  description: "Add, list and remove passenger from the booking",
   callback: async (manager, ...args) => {
-    const usage = "Usage: booking passanger OPERATION";
+    const usage = "Usage: booking passenger OPERATION";
     const registeredCommands = [ addCommand, listCommand, removeCommand ];
 
     if (args.length === 0) {
