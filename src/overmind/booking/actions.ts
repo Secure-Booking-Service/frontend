@@ -18,9 +18,10 @@ export function resetValidationStatus({ state }: Context): void {
   state.wasSuccessfullyValidated = false;
 }
 
-export function addPassenger({ state, actions }: Context, passenger: Passenger): void {
-  state.passengers.push(passenger);
+export function addPassenger({ state, actions }: Context, passenger: Passenger): number {
+  const index = state.passengers.push(passenger);
   actions.resetValidationStatus();
+  return index;
 }
 
 export function removePassenger({ state, actions }: Context, index: number): Passenger {
