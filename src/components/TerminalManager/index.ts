@@ -184,7 +184,7 @@ export class TerminalManager {
    */
   private runCommand(): void {
     // Seperate command and arguments
-    const [keyword, ...args] = this.currentCommand.trim().split(" ");
+    const [keyword, ...args] = this.currentCommand.trim().split(" ").filter(i => i !== "");
     if (keyword.length > 0) {
       this.commandHistory.push(this.currentCommand);
       this.terminal.writeln(""); // Newline for command output
@@ -451,7 +451,7 @@ export class TerminalManager {
    * Writes the given text to the terminal followed by a newline character.
    * @param line The characters to write
    */
-  public writeLine(line: string): void {
+  public writeLine(line = ""): void {
     this.terminal.writeln(line);
   }
 

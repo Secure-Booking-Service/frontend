@@ -36,7 +36,7 @@ export const checkCommand: ICommand = {
       errors++;
     }
 
-    manager.writeLine("");
+    manager.writeLine();
 
     if (errors > 0) {
       manager.writeError("Found " + errors + " errors!", false);
