@@ -1,9 +1,8 @@
-import { CreditCard, Passenger } from "@secure-booking-service/common-types"
+import { Booking, Passenger } from "@secure-booking-service/common-types"
 
-export type State = {
-  passengers: Passenger[];
-  flights: any[];
-  creditCard: CreditCard | null;
+export interface State extends Partial<Booking> {
+  passengers: Passenger[],
+  flights: any[],
   wasSuccessfullyValidated: boolean;
   hasBookingStarted: boolean
 }
@@ -11,7 +10,7 @@ export type State = {
 export const initalState: State = {
   passengers: [],
   flights: [],
-  creditCard: null,
+  creditCard: undefined,
   wasSuccessfullyValidated: false,
   hasBookingStarted: false
 }

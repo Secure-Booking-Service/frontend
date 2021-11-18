@@ -6,14 +6,24 @@ export function newBooking({ state }: Context): void {
 }
   
 export function abortBooking({ state, actions }: Context): void {
-    actions.newBooking();
-    state.hasBookingStarted = false;
+  actions.newBooking();
+  state.hasBookingStarted = false;
 }
 
-export function addPassenger({ state }: Context, passenger: Passenger): void {
-    state.passengers.push(passenger);
+export function setValidationStatus({ state }: Context, successfull: boolean): void {
+  state.wasSuccessfullyValidated = successfull;
 }
 
-export function removePassenger({ state }: Context, index: number): Passenger {
-    return state.passengers.splice(index-1, 1)[0];
+export function resetValidationStatus({ state }: Context): void {
+  state.wasSuccessfullyValidated = false;
+}
+
+export function addPassenger({ state, actions }: Context, passenger: Passenger): void {
+  state.passengers.push(passenger);
+  actions.resetValidationStatus();
+}
+
+export function removePassenger({ state, actions }: Context, index: number): Passenger {
+  actions.resetValidationStatus();
+  return state.passengers.splice(index-1, 1)[0];
 }
