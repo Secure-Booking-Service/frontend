@@ -21,6 +21,8 @@ export const listCommand: ICommand = {
     
     manager.writeLine("Printing credit card ...");
     manager.writeLine();
+
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
     printCreditCard(booking.state.creditCard!, manager)
   },
 };

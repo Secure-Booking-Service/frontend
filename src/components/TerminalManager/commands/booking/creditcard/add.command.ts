@@ -47,6 +47,7 @@ export const addCommand: ICommand = {
 
     const validation = expireDate.match(/^(0[1-9]|1[0-2])\/?([0-9]{4}|[0-9]{2})$/)
     
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
     if (validation === null || validation!.length !== 3) {
       manager.writeError("Invalid format or date: " + expireDate);
       manager.writeLine("Please enter the date of expire in the MM/YY format");
@@ -64,7 +65,7 @@ export const addCommand: ICommand = {
         number,
       }
 
-      const index = booking.actions.addCreditCard(card);
+      booking.actions.addCreditCard(card);
       printCreditCard(card, manager);
       manager.writeSuccess("Credit card added successfully!", true);
     }
