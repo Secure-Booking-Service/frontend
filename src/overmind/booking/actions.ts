@@ -2,6 +2,8 @@ import { CreditCard, Passenger } from '@secure-booking-service/common-types';
 import { Context } from './config';
 
 export function newBooking({ state }: Context): void {
+  state.creditCard = undefined;
+  state.passengers = [];
   state.hasBookingStarted = true;
 }
   
