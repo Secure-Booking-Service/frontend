@@ -23,8 +23,8 @@ export const checkCommand: ICommand = {
 
     const underagedDate = new Date();
     underagedDate.setFullYear(underagedDate.getFullYear() - 13)
-    const underagedPassengers = booking.state.passengers.filter(passenger => new Date(passenger.birthrate).getTime() <= underagedDate.getTime() );
-    const fullagedPassengers = booking.state.passengers.filter(passenger => new Date(passenger.birthrate).getTime() > underagedDate.getTime() );
+    const underagedPassengers = booking.state.passengers.filter(passenger => new Date(passenger.birthrate).getTime() > underagedDate.getTime() );
+    const fullagedPassengers = booking.state.passengers.filter(passenger => new Date(passenger.birthrate).getTime() <= underagedDate.getTime() );
 
     if (underagedPassengers.length !== 0 && fullagedPassengers.length === 0) {
       manager.writeError(" Full-aged passenger missing! Underaged passenger can not travel alone!", true)
