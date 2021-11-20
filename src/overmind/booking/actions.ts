@@ -1,4 +1,4 @@
-import { Passenger } from '@secure-booking-service/common-types';
+import { CreditCard, Passenger } from '@secure-booking-service/common-types';
 import { Context } from './config';
 
 export function newBooking({ state }: Context): void {
@@ -27,4 +27,18 @@ export function addPassenger({ state, actions }: Context, passenger: Passenger):
 export function removePassenger({ state, actions }: Context, index: number): Passenger {
   actions.resetValidationStatus();
   return state.passengers.splice(index-1, 1)[0];
+}
+
+export function addCreditCard({ state, actions }: Context, card: CreditCard): void {
+  actions.resetValidationStatus();
+  state.creditCard = card;
+}
+
+export function removeCreditCard({ state, actions }: Context): CreditCard {
+  actions.resetValidationStatus();
+  
+  const card = state.creditCard!;
+  state.creditCard = undefined;
+  
+  return card;
 }
