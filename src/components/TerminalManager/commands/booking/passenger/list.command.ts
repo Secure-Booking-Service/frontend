@@ -6,9 +6,9 @@ import { booking } from "@/overmind/booking";
 export function printPassenger(index: number, passenger: Passenger, manager: TerminalManager): void {
   
   const printStatement: string[] = [
-    c.bold(index.toString() + "."),
+    c.bold.blue(index.toString() + "."),
+    passenger.lastName.toUpperCase() + ",",
     passenger.firstName.toUpperCase(),
-    passenger.lastName.toUpperCase(),
     passenger.birthrate,
     passenger.gender.toUpperCase(),
   ]
@@ -20,6 +20,7 @@ export const listCommand: ICommand = {
   command: "ls",
   description: "List all passangers of booking",
   callback: async (manager) => {
+    // current booking is validated in ./index.ts
     
     if (booking.state.passengers.length === 0) {
       manager.writeError("Passenger list is empty!");

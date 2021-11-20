@@ -1,5 +1,9 @@
 import { ICommand } from "../../..";
 import { executeSubCommand } from "../../helper";
+import { noCurrentBooking } from "../helpers";
+import { addCommand } from "./add.command";
+import { listCommand } from "./list.command";
+import { removeCommand } from "./remove.command";
 
 
 export const creditcardCommand: ICommand = {
@@ -7,7 +11,9 @@ export const creditcardCommand: ICommand = {
   description: "Add, list and remove a creditcard from the booking",
   callback: async (manager, ...args) => {
     const usage = "Usage: booking creditcard OPERATION";
-    const registeredCommands: ICommand[] = [];
+    const registeredCommands: ICommand[] = [ addCommand, listCommand, removeCommand ];
+
+    if (noCurrentBooking(manager)) return;
 
     if (args.length === 0) {
       manager.writeError("Missing operation!");
