@@ -6,4 +6,4 @@ export const config = {
   actions
 }
 
-export type Context = IContext<typeof config>
+export type Context = IContext<typeof config>;

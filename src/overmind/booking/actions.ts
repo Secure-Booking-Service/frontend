@@ -39,6 +39,7 @@ export function addCreditCard({ state, actions }: Context, card: CreditCard): vo
 export function removeCreditCard({ state, actions }: Context): CreditCard {
   actions.resetValidationStatus();
   
+  // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
   const card = state.creditCard!;
   state.creditCard = undefined;
   
