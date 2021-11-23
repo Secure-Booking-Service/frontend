@@ -5,7 +5,7 @@ import { printPassenger } from "./list.command";
 
 export const removeCommand: ICommand = {
   command: "rm",
-  description: "Remove a passanger from booking",
+  description: "Remove a passenger from booking",
   callback: async (manager, ...args) => {
     // current booking is validated in ./index.ts
     const usage = "Usage: [...] rm INDEX";
