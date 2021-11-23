@@ -30,7 +30,7 @@ export const removeCommand: ICommand = {
     const index = Number(indexArg);
 
     if (booking.state.passengers.length < index) {
-      manager.writeError("Index out of bounce!");
+      manager.writeError("Index out of bounds!");
       manager.writeLine("Highest passenger index is " + booking.state.passengers.length);
 
       manager.writeLine();
