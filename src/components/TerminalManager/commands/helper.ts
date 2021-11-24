@@ -23,7 +23,7 @@ export async function executeSubCommand(registeredCommands: ICommand[], args: st
   const [ execCommand ] = exeCommands;
 
   // Validate length of arguments
-  if (execCommand.usage !== undefined && validateArguments(shiftedArgs, execCommand)) return false;
+  if (validateArguments(shiftedArgs, execCommand)) return false;
 
   // Execute command
   await execCommand.callback(manager, ...shiftedArgs);
