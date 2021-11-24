@@ -31,7 +31,6 @@ export const checkCommand: ICommand = {
       });
     }
 
-    
     const underagedDate = new Date();
     underagedDate.setFullYear(underagedDate.getFullYear() - 13)
     const underagedPassengers = booking.state.passengers.filter(passenger => new Date(passenger.birthrate).getTime() > underagedDate.getTime() );

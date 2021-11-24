@@ -1,9 +1,11 @@
 import { ICommand } from "../../..";
 import isAscii from 'validator/lib/isAscii';
 import isDate from 'validator/lib/isDate';
+import c from 'ansi-colors';
 import { Passenger } from "@secure-booking-service/common-types";
 import { booking } from "@/overmind/booking";
 import { printPassenger } from "./list.command";
+import { validateArguments } from "../../helper";
 
 
 export const addCommand: ICommand = {
@@ -11,15 +13,11 @@ export const addCommand: ICommand = {
   description: "Add a new passanger to booking",
   callback: async (manager, ...args) => {
     // current booking is validated in ./index.ts
-    const usage = "Usage: [...] add FIRSTNAME LASTNAME YYYY-MM-DD GENDER";
+    const usage = "Usage: [...] add " +  c.italic("FIRSTNAME LASTNAME YYYY-MM-DD GENDER");
     let errors = 0;
   
-    if (args.length !== 4) {
-      manager.writeError("Wrong number arguments! Expected 4 but got " + args.length);
-      manager.writeLine(usage);
-      return;
-    }
-
+    if (validateArguments(args, 4, usage)) return;
+    
     const [ firstName, lastName, dateOfBirth, gender] = args;  
 
     if (!isAscii(firstName)) {

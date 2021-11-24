@@ -24,3 +24,23 @@ export async function executeSubCommand(registeredCommands: ICommand[], manager:
   // Return true as one command were executed
   return true;
 }
+
+/**
+ * Validates the given args array according to the expected length of the calling function.
+ * Retruns true, if the validation FAILED.
+ * 
+ * @param args Array of strings
+ * @param expected Number of expected
+ * @param usage String with the usage description
+ * @returns {boolean} Validation has been failed?
+ */
+export function validateArguments(args: string[], expected: number, usage: string): boolean {
+  const manager = TerminalManager.Instance;
+  if (args.length !== expected) {
+    manager.writeError("Wrong number of arguments! Expected " + expected + " but got " + args.length);
+    manager.writeLine(usage);
+    return true; // validation failed
+  }
+
+  return false; // validation was successful
+}

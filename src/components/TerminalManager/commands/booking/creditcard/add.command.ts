@@ -2,7 +2,9 @@ import { booking } from "@/overmind/booking";
 import { CreditCard } from "@secure-booking-service/common-types";
 import isAscii from "validator/lib/isAscii";
 import isCreditCard from "validator/lib/isCreditCard";
+import c from 'ansi-colors';
 import { ICommand } from "../../..";
+import { validateArguments } from "../../helper";
 import { printCreditCard } from "./list.command";
 
 export const addCommand: ICommand = {
@@ -10,7 +12,7 @@ export const addCommand: ICommand = {
   description: "Add creditcard to booking",
   callback: async (manager, ...args) => {
     // current booking is validated in ./index.ts
-    const usage = "Usage: [...] add FIRSTNAME LASTNAME NUMBER EXPIRE-DATE";
+    const usage = "Usage: [...] add " + c.italic("FIRSTNAME LASTNAME NUMBER EXPIRE-DATE");
     let errors = 0;
   
     if (booking.state.creditCard !== undefined) {
@@ -18,11 +20,7 @@ export const addCommand: ICommand = {
       return;
     }
 
-    if (args.length !== 4) {
-      manager.writeError("Wrong number arguments! Expected 4 but got " + args.length);
-      manager.writeLine(usage);
-      return;
-    }
+    if (validateArguments(args, 4, usage)) return;
 
     const [ firstName, lastName, number, expireDate] = args;  
 

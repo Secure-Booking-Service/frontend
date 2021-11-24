@@ -1,20 +1,18 @@
 import { booking } from "@/overmind/booking";
 import { ICommand } from "../../..";
 import isNumeric from 'validator/lib/isNumeric';
+import c from 'ansi-colors';
 import { printPassenger } from "./list.command";
+import { validateArguments } from "../../helper";
 
 export const removeCommand: ICommand = {
   command: "rm",
   description: "Remove a passanger from booking",
   callback: async (manager, ...args) => {
     // current booking is validated in ./index.ts
-    const usage = "Usage: [...] rm INDEX";
+    const usage = "Usage: [...] rm " + c.italic("INDEX");
 
-    if (args.length !== 1) {
-      manager.writeError("Wrong number arguments! Expected 1 but got " + args.length);
-      manager.writeLine(usage);
-      return;
-    }
+    if (validateArguments(args, 1, usage)) return;
 
     const [indexArg] = args;
     if (isNumeric(indexArg) && parseInt(indexArg) <= 0) {
