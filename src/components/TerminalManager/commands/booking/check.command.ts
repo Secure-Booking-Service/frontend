@@ -56,7 +56,7 @@ export const checkCommand: ICommand = {
       manager.writeError("Check failed!", true)
       booking.actions.setValidationStatus(false);
     } else {
-      manager.writeSuccess("Found " + errors + " errors!", false);
+      manager.writeSuccess("No errors found!", false);
       manager.writeSuccess("Check was successfull!", true);
       booking.actions.setValidationStatus(true);
     }

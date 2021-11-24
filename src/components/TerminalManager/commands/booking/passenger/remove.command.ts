@@ -7,7 +7,7 @@ import { validateArguments } from "../../helper";
 
 export const removeCommand: ICommand = {
   command: "rm",
-  description: "Remove a passanger from booking",
+  description: "Remove a passenger from booking",
   callback: async (manager, ...args) => {
     // current booking is validated in ./index.ts
     const usage = "Usage: [...] rm " + c.italic("INDEX");
@@ -28,7 +28,7 @@ export const removeCommand: ICommand = {
     const index = Number(indexArg);
 
     if (booking.state.passengers.length < index) {
-      manager.writeError("Index out of bounce!");
+      manager.writeError("Index out of bounds!");
       manager.writeLine("Highest passenger index is " + booking.state.passengers.length);
 
       manager.writeLine();
