@@ -175,8 +175,6 @@ export class TerminalManager {
     this.registerCommand(registrationCommand);
     this.registerCommand(echoCommand);
     this.registerCommand(bookingCommand);
-
-    // Register hidden commands
     this.registerCommand(sudoCommand);
   }
 
