@@ -12,8 +12,8 @@ export function abortBooking({ state, actions }: Context): void {
   state.hasBookingStarted = false;
 }
 
-export function setValidationStatus({ state }: Context, successfull: boolean): void {
-  state.wasSuccessfullyValidated = successfull;
+export function setValidationStatus({ state }: Context, successful: boolean): void {
+  state.wasSuccessfullyValidated = successful;
 }
 
 export function resetValidationStatus({ state }: Context): void {
