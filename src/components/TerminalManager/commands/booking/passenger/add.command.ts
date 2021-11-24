@@ -54,7 +54,7 @@ export const addCommand: ICommand = {
       const passenger: Passenger = {
         firstName: firstName.toUpperCase(),
         lastName: lastName.toUpperCase(),
-        birthrate: dateOfBirth,
+        dateOfBirth,
         gender: gender.toUpperCase()
       }
 

@@ -9,7 +9,7 @@ export function printPassenger(index: number, passenger: Passenger, manager: Ter
     c.bold.blue(index.toString() + "."),
     passenger.lastName.toUpperCase() + ",",
     passenger.firstName.toUpperCase(),
-    passenger.birthrate,
+    passenger.dateOfBirth,
     passenger.gender.toUpperCase(),
   ]
 
