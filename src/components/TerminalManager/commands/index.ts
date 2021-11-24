@@ -7,3 +7,4 @@ export { registerCommand } from "./register.command";
 export { helpCommand } from "./help.command";
 export { sudoCommand } from "./sudo";
 export { bookingCommand } from './booking';
+export { flightCommand } from './flights';

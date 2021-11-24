@@ -12,6 +12,7 @@ import {
   registerCommand as registrationCommand,
   sudoCommand,
   bookingCommand,
+  flightCommand,
 } from "./commands";
 
 /**
