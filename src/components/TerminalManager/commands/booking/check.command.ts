@@ -19,8 +19,6 @@ export const checkCommand: ICommand = {
       errors++;
     }
 
-    manager.writeLine();
-
     if (booking.state.passengers.length === 0) {
       manager.writeError("No passengers added! Use 'booking passenger add'", true)
       errors++;
