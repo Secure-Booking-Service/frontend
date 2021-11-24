@@ -1,4 +1,4 @@
-import { ICommand } from "../../..";
+import { ICommand } from "@/components/TerminalManager";
 import { booking } from "@/overmind/booking";
 import { printCreditCard } from "./list.command";
 import { CreditCard } from "@secure-booking-service/common-types";

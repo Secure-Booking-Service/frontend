@@ -1,5 +1,5 @@
 import { booking } from "@/overmind/booking";
-import { TerminalManager } from "../..";
+import { TerminalManager } from "@/components/TerminalManager";
 
 
 /**

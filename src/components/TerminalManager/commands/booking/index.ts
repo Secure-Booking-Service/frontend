@@ -1,4 +1,4 @@
-import { ICommand } from "../..";
+import { ICommand } from "@/components/TerminalManager";
 import { executeSubCommand } from "../helper";
 import { abortCommand } from "./abort.command";
 import { checkCommand } from "./check.command";

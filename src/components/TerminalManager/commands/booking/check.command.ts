@@ -1,5 +1,5 @@
 import { booking } from "@/overmind/booking";
-import { ICommand } from "../..";
+import { ICommand } from "@/components/TerminalManager";
 import { printCreditCard } from "./creditcard/list.command";
 import { noCurrentBooking } from "./helpers";
 import { printPassenger } from "./passenger/list.command";

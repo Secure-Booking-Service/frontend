@@ -1,4 +1,4 @@
-import { ICommand } from "../..";
+import { ICommand } from "@/components/TerminalManager";
 
 export const closeCommand: ICommand = {
   command: "close",
