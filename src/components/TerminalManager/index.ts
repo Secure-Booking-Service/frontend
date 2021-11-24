@@ -11,6 +11,7 @@ import {
   manCommand,
   registerCommand as registrationCommand,
   sudoCommand,
+  bookingCommand,
 } from "./commands";
 
 /**
@@ -23,6 +24,7 @@ export interface ICommand {
   command: string;
   description: string;
   hidden?: boolean;
+  usage?: string[];
   callback: (terminalMgr: TerminalManager, ...args: string[]) => Promise<string | void>;
 }
 
@@ -172,6 +174,7 @@ export class TerminalManager {
     this.registerCommand(logoutCommand);
     this.registerCommand(registrationCommand);
     this.registerCommand(echoCommand);
+    this.registerCommand(bookingCommand);
 
     // Register hidden commands
     this.registerCommand(sudoCommand);
@@ -182,7 +185,7 @@ export class TerminalManager {
    */
   private runCommand(): void {
     // Seperate command and arguments
-    const [keyword, ...args] = this.currentCommand.trim().split(" ");
+    const [keyword, ...args] = this.currentCommand.trim().split(" ").filter(i => i !== "");
     if (keyword.length > 0) {
       this.commandHistory.push(this.currentCommand);
       this.terminal.writeln(""); // Newline for command output
@@ -378,20 +381,78 @@ export class TerminalManager {
   }
 
   /**
-   * Writes a red string to the terminal.
-   * @param error The error string
-   * @param prompt If the prompt should appear after printing the error
+   * Prints a error message to terminal
+   * The message will be red except the icon is printed
+   *
+   * @param {string} error Error message
+   * @param {boolean} [icon=false] Print ✖ icon
+   * @memberof TerminalManager
    */
-  public writeError(error: string, prompt = false): void {
-    this.terminal.writeln(c.red.bold(error));
-    if (prompt) this.printPrompt();
+  public writeError(error: string, icon = false): void {
+    const style = c.red.bold;
+    if (icon) {
+      this.terminal.writeln(style("✖") + " " + error)
+    } else {
+      this.terminal.writeln(style(error));
+    }
+  }
+
+  /**
+   * Prints a warning message to terminal
+   * The message will be yellow except the icon is printed
+   *
+   * @param {string} warning Warning message
+   * @param {boolean} [icon=false] Print ⚠ icon
+   * @memberof TerminalManager
+   */
+  public writeWarning(warning: string, icon = false): void {
+    const style = c.yellow.bold;
+    if (icon) {
+      this.terminal.writeln(style("⚠") + " " + warning)
+    } else {
+      this.terminal.writeln(style(warning));
+    }
+  }
+
+  /**
+   * Prints a success message to terminal
+   * The message will be green except the icon is printed
+   *
+   * @param {string} success success message
+   * @param {boolean} [icon=false] Print ℹ icon
+   * @memberof TerminalManager
+   */
+  public writeSuccess(success: string, icon = false): void {
+    const style = c.green.bold;
+    if (icon) {
+      this.terminal.writeln(style("✔") + " " + success)
+    } else {
+      this.terminal.writeln(style(success));
+    }
+  }
+
+  /**
+   * Prints a info message to terminal
+   * The message will be blue except the icon is printed
+   *
+   * @param {string} info info message
+   * @param {boolean} [icon=false] Print ℹ icon
+   * @memberof TerminalManager
+   */
+  public writeInfo(info: string, icon = false): void {
+    const style = c.blueBright.bold;
+    if (icon) {
+      this.terminal.writeln(style("ℹ") + " " + info)
+    } else {
+      this.terminal.writeln(style(info));
+    }
   }
 
   /**
    * Writes the given text to the terminal followed by a newline character.
    * @param line The characters to write
    */
-  public writeLine(line: string): void {
+  public writeLine(line = ""): void {
     this.terminal.writeln(line);
   }
 

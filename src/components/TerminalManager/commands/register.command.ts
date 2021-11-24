@@ -1,21 +1,15 @@
-import store from "@/store";
-import { startRegistration } from "@simplewebauthn/browser";
-import isEmail from "validator/lib/isEmail";
-import isUUID from "validator/lib/isUUID";
 import { ICommand } from "..";
 import { apiErrorHandler } from "../apierrorhandler";
+import { startRegistration } from "@simplewebauthn/browser";
+import store from "@/store";
+import isEmail from "validator/lib/isEmail";
+import isUUID from "validator/lib/isUUID";
 
 export const registerCommand: ICommand = {
   command: "register",
   description: "Registers a new user with an email adress and token",
+  usage: ["EMAIL", "TOKEN"],
   callback: async (manager, ...args) => {
-    const USAGE = "Usage: register [EMAIL] [TOKEN]";
-
-    if (args.length !== 2) {
-      manager.writeError("Expected TWO arguments!");
-      manager.writeLine(USAGE);
-      return;
-    }
 
     const [email, token] = args;
 
