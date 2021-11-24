@@ -8,16 +8,16 @@ export const loginCommand: ICommand = {
   command: "login",
   description: "Login with email",
   callback: async (manager, email) => {
-    // Validate that email adress is provided
+    // Validate that email address is provided
     if (email === undefined || email === "") {
       manager.writeError("Please provide an email address!");
       manager.writeLine("Usage: login EMAIL ");
       return;
     }
 
-    // Validate that it is a valid email adress
+    // Validate that it is a valid email address
     if (!isEmail(email))
-      return manager.writeError("Please enter a valid email adress!");
+      return manager.writeError("Please enter a valid email address!");
 
     manager.writeLine(`Login ${email} ...`);
 

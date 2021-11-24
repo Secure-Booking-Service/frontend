@@ -7,13 +7,13 @@ import isUUID from "validator/lib/isUUID";
 
 export const registerCommand: ICommand = {
   command: "register",
-  description: "Registers a new user with an email adress and token",
+  description: "Registers a new user with an email address and token",
   usage: ["EMAIL", "TOKEN"],
   callback: async (manager, ...args) => {
 
     const [email, token] = args;
 
-    // Validate that it is a valid email adress
+    // Validate that it is a valid email address
     if (!isEmail(email))
       return manager.writeError("Please enter a valid email address!");
 
