@@ -1,19 +1,14 @@
 import { booking } from "@/overmind/booking";
 import { ICommand } from "../../..";
-import isNumeric from 'validator/lib/isNumeric';
-import c from 'ansi-colors';
 import { printPassenger } from "./list.command";
-import { validateArguments } from "../../helper";
+import isNumeric from 'validator/lib/isNumeric';
 
 export const removeCommand: ICommand = {
   command: "rm",
   description: "Remove a passenger from booking",
+  usage: ["INDEX"],
   callback: async (manager, ...args) => {
     // current booking is validated in ./index.ts
-    const usage = "Usage: [...] rm " + c.italic("INDEX");
-
-    if (validateArguments(args, 1, usage)) return;
-
     const [indexArg] = args;
     if (isNumeric(indexArg) && parseInt(indexArg) <= 0) {
       manager.writeError("Index must be a number and greater 0!");

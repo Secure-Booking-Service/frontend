@@ -1,26 +1,22 @@
+import { ICommand } from "../../..";
 import { booking } from "@/overmind/booking";
+import { printCreditCard } from "./list.command";
 import { CreditCard } from "@secure-booking-service/common-types";
 import isAscii from "validator/lib/isAscii";
 import isCreditCard from "validator/lib/isCreditCard";
-import c from 'ansi-colors';
-import { ICommand } from "../../..";
-import { validateArguments } from "../../helper";
-import { printCreditCard } from "./list.command";
 
 export const addCommand: ICommand = {
   command: "add",
   description: "Add creditcard to booking",
+  usage: ["FIRSTNAME", "LASTNAME", "NUMBER", "EXPIRE-DATE"],
   callback: async (manager, ...args) => {
     // current booking is validated in ./index.ts
-    const usage = "Usage: [...] add " + c.italic("FIRSTNAME LASTNAME NUMBER EXPIRE-DATE");
     let errors = 0;
   
     if (booking.state.creditCard !== undefined) {
       manager.writeError("A credit card was already added to booking! Use 'booking creditcard ls' to display the current credit card.");
       return;
     }
-
-    if (validateArguments(args, 4, usage)) return;
 
     const [ firstName, lastName, number, expireDate] = args;  
 

@@ -1,19 +1,15 @@
+import { ICommand } from "..";
+import { apiErrorHandler } from "../apierrorhandler";
 import { startRegistration } from "@simplewebauthn/browser";
 import store from "@/store";
 import isEmail from "validator/lib/isEmail";
 import isUUID from "validator/lib/isUUID";
-import c from 'ansi-colors';
-import { ICommand } from "..";
-import { apiErrorHandler } from "../apierrorhandler";
-import { validateArguments } from "./helper";
 
 export const registerCommand: ICommand = {
   command: "register",
   description: "Registers a new user with an email adress and token",
+  usage: ["EMAIL", "TOKEN"],
   callback: async (manager, ...args) => {
-    const usage = "Usage: register " + c.italic("EMAIL TOKEN");
-
-    if (validateArguments(args, 2, usage)) return;
 
     const [email, token] = args;
 

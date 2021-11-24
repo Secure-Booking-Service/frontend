@@ -24,6 +24,7 @@ export interface ICommand {
   command: string;
   description: string;
   hidden?: boolean;
+  usage?: string[];
   callback: (terminalMgr: TerminalManager, ...args: string[]) => Promise<string | void>;
 }
 

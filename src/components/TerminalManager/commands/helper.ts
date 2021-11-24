@@ -6,20 +6,27 @@ export function shift(args: string[]): string[] {
   return args;
 }
 
-export async function executeSubCommand(registeredCommands: ICommand[], manager: TerminalManager, args: string[]): Promise<boolean> {
+export async function executeSubCommand(registeredCommands: ICommand[], args: string[]): Promise<boolean> {
+  const manager = TerminalManager.Instance;
   const [ command ] = args;
-  const exeCommand = registeredCommands.filter((item) => item.command === command.toLocaleLowerCase());
+  const shiftedArgs = shift(args);
+  const exeCommands = registeredCommands.filter((item) => item.command === command.toLocaleLowerCase());
   
   // Return false if no command or too many commands are available 
-  if (exeCommand.length !== 1) {
+  if (exeCommands.length !== 1) {
     manager.writeError("Unkown operation: " + command.toLocaleLowerCase());
     manager.writeLine("Available operations: ");
     displayTableFor(registeredCommands, manager);
     return false
   }
-  
+
+  const [ execCommand ] = exeCommands;
+
+  // Validate length of arguments
+  if (execCommand.usage !== undefined && validateArguments(shiftedArgs, execCommand)) return false;
+
   // Execute command
-  await exeCommand[0].callback(manager, ...shift(args));
+  await execCommand.callback(manager, ...shiftedArgs);
 
   // Return true as one command were executed
   return true;
@@ -34,8 +41,13 @@ export async function executeSubCommand(registeredCommands: ICommand[], manager:
  * @param usage String with the usage description
  * @returns {boolean} Validation has been failed?
  */
-export function validateArguments(args: string[], expected: number, usage: string): boolean {
+export function validateArguments(args: string[], command: ICommand): boolean {
+  if (command.usage === undefined) return false;
+
+  const expected: number = command.usage.length;
+  const usage: string = "Usage: [...] " + command.command + " " + command.usage.map(i => i.toUpperCase()).join(" ");
   const manager = TerminalManager.Instance;
+  
   if (args.length !== expected) {
     manager.writeError("Wrong number of arguments! Expected " + expected + " but got " + args.length);
     manager.writeLine(usage);

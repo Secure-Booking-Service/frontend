@@ -19,6 +19,6 @@ export const passengerCommand: ICommand = {
       return manager.writeLine(usage);
     }
 
-    executeSubCommand(registeredCommands, manager, args);
+    executeSubCommand(registeredCommands, args);
   },
 };
