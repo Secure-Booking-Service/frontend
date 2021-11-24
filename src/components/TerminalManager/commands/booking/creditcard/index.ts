@@ -13,7 +13,7 @@ export const creditcardCommand: ICommand = {
     const usage = "Usage: booking creditcard OPERATION";
     const registeredCommands: ICommand[] = [ addCommand, listCommand, removeCommand ];
 
-    if (noCurrentBooking(manager)) return;
+    if (noCurrentBooking()) return;
 
     if (args.length === 0) {
       manager.writeError("Missing operation!");

@@ -7,10 +7,10 @@ import { TerminalManager } from "@/components/TerminalManager";
  * If not it prints an error message and returns true
  * 
  * @export
- * @param {TerminalManager} manager Terminal Manager instance
  * @return {boolean} booking has not been started
  */
-export function noCurrentBooking(manager: TerminalManager): boolean {
+export function noCurrentBooking(): boolean {
+  const manager = TerminalManager.Instance;
   if (!booking.state.hasBookingStarted) {
     manager.writeError("No booking found!")
     manager.writeLine("Use 'booking new' to start a new booking!");
