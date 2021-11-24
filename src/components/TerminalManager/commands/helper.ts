@@ -34,7 +34,7 @@ export async function executeSubCommand(registeredCommands: ICommand[], args: st
 
 /**
  * Validates the given args array according to the expected length of the calling function.
- * Retruns true, if the validation FAILED.
+ * Returns true, if the validation FAILED.
  * 
  * @param args Array of strings
  * @param expected Number of expected
