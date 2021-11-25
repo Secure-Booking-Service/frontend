@@ -177,6 +177,7 @@ export class TerminalManager {
     this.registerCommand(echoCommand);
     this.registerCommand(bookingCommand);
     this.registerCommand(sudoCommand);
+    this.registerCommand(flightCommand);
   }
 
   /**

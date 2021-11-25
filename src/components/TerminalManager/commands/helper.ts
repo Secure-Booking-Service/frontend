@@ -1,5 +1,5 @@
 import { AxiosResponse } from "axios";
-import { ICommand, TerminalManager } from "..";
+import { ICommand, TerminalManager } from "@/components/TerminalManager";
 import { displayTableFor } from "./help.command";
 
 export function shift(args: string[]): string[] {

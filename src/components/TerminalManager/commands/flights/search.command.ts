@@ -1,5 +1,5 @@
 import { AxiosRequestConfig } from "axios";
-import { ICommand, TerminalManager } from "../..";
+import { ICommand, TerminalManager } from "@/components/TerminalManager";
 import { api } from "../../../../store/utils/ApiUtil";
 import { booking } from "@/overmind/booking";
 import { noCurrentBooking } from "../booking/helpers";
@@ -95,7 +95,7 @@ function printFlightOffers(offers: FlightOffer[], manager: TerminalManager): voi
     else
         manager.writeError(`No flights found!`, true);
 
-    manager.writeLine("");
+    manager.writeLine();
     offers.forEach((offer, index) => {
         manager.writeLine(`Flight number: ${blue.bold(String(index + 1))}`);
         manager.writeLine(`Bookable seats: ${offer.numberOfBookableSeats}`);
@@ -113,11 +113,6 @@ function printFlightOffers(offers: FlightOffer[], manager: TerminalManager): voi
             manager.write(` on ${arrivalDate} ${cyan.bold(arrivalTime)}`);
             manager.write(` (${flight.duration.substr(2)})\r\n`);
         });
-        manager.writeLine("");
+        manager.writeLine();
     });
 }
-
-// TODO: @/components/TerminalManager ICommand & TerminalManager src
-// TODO: manager.writeLine() no quotes
-// TODO: Throw undefinded errors > 0
-
