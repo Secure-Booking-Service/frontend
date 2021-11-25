@@ -1,3 +1,4 @@
+import { AxiosResponse } from "axios";
 import { ICommand, TerminalManager } from "..";
 import { displayTableFor } from "./help.command";
 
@@ -55,4 +56,20 @@ export function validateArguments(args: string[], command: ICommand): boolean {
   }
 
   return false; // validation was successful
+}
+
+/**
+ * Prints the error and possible details at the user console
+ * @param apiResponse An axios response with a status code other than 2xx
+ */
+export function printApiError(apiResponse: AxiosResponse): void {
+  const manager = TerminalManager.Instance;
+  manager.writeError("Error: " + apiResponse.statusText);
+  const errors = apiResponse.data.error;
+  if (errors instanceof Array && errors.length !== 0) {
+      manager.writeError("Details:");
+      errors.forEach((err: any) => {
+          manager.writeError("- " + err.message);
+      });
+  }
 }

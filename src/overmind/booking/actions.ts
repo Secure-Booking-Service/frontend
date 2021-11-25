@@ -1,9 +1,12 @@
-import { CreditCard, Passenger } from '@secure-booking-service/common-types';
+import { CreditCard, FlightOffer, Passenger } from '@secure-booking-service/common-types';
 import { Context } from './config';
 
 export function newBooking({ state }: Context): void {
-  state.creditCard = undefined;
   state.passengers = [];
+  state.flightOffers = [];
+  state.selectedFlightOffer = undefined;
+  state.creditCard = undefined;
+  state.wasSuccessfullyValidated = false;
   state.hasBookingStarted = true;
 }
   
@@ -44,4 +47,14 @@ export function removeCreditCard({ state, actions }: Context): CreditCard {
   state.creditCard = undefined;
   
   return card;
+}
+
+export function addFlightOffers({ state, actions }: Context, flightOffers: FlightOffer[]): void {
+  actions.resetValidationStatus();
+  state.flightOffers = flightOffers;
+}
+
+export function selectFlightOffer({ state, actions }: Context, index: number): void {
+  actions.resetValidationStatus();
+  state.selectedFlightOffer = state.flightOffers[index];
 }
