@@ -3,8 +3,7 @@ import { Context } from './config';
 
 export function newBooking({ state }: Context): void {
   state.passengers = [];
-  state.flightOffers = [];
-  state.selectedFlightOffer = undefined;
+  state.flightOffer = undefined;
   state.creditCard = undefined;
   state.wasSuccessfullyValidated = false;
   state.hasBookingStarted = true;
@@ -49,12 +48,7 @@ export function removeCreditCard({ state, actions }: Context): CreditCard {
   return card;
 }
 
-export function addFlightOffers({ state, actions }: Context, flightOffers: FlightOffer[]): void {
+export function addFlightOffer({ state, actions }: Context, flightOffer: FlightOffer): void {
   actions.resetValidationStatus();
-  state.flightOffers = flightOffers;
-}
-
-export function selectFlightOffer({ state, actions }: Context, index: number): void {
-  actions.resetValidationStatus();
-  state.selectedFlightOffer = state.flightOffers[index];
+  state.flightOffer = flightOffer;
 }

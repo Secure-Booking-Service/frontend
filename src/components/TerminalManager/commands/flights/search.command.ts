@@ -10,6 +10,7 @@ import isDate from 'validator/lib/isDate';
 import isAfter from 'validator/lib/isAfter';
 import isUppercase from 'validator/lib/isUppercase';
 import isLength from 'validator/lib/isLength';
+import { flights } from "@/overmind/flights";
 
 export const searchCommand: ICommand = {
     command: "search",
@@ -68,6 +69,7 @@ export const searchCommand: ICommand = {
             if (apiResponse.status === 200) {
                 const flightOffers = apiResponse.data.data;
                 printFlightOffers(flightOffers, manager);
+                flights.actions.addFlightOffers(flightOffers);
             } else {
                 printApiError(apiResponse);
             }
