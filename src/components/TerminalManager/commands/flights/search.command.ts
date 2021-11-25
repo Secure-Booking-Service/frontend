@@ -75,7 +75,11 @@ export const searchCommand: ICommand = {
             }
         }
         catch (error: unknown) {
-            manager.writeError("Error: " + error)
+            if (error !== undefined && error instanceof Error) {
+                manager.writeError(error.message);
+                manager.writeLine();
+                console.error(error);
+            }
         }
     },
 };
@@ -112,3 +116,8 @@ function printFlightOffers(offers: FlightOffer[], manager: TerminalManager): voi
         manager.writeLine("");
     });
 }
+
+// TODO: @/components/TerminalManager ICommand & TerminalManager src
+// TODO: manager.writeLine() no quotes
+// TODO: Throw undefinded errors > 0
+
