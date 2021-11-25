@@ -1,8 +1,8 @@
-import { ICommand } from "..";
+import { ICommand } from "@/components/TerminalManager";
 import c from "ansi-colors";
 
-export const sudoCommand: ICommand = {
-  command: "sudo",
+export const powerCommand: ICommand = {
+  command: "power",
   description: "Some superpowers for you!",
   hidden: true,
   callback: async (terminalMgr) => {

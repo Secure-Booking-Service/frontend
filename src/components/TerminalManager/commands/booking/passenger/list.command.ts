@@ -1,7 +1,7 @@
 import { Passenger } from "@secure-booking-service/common-types";
-import { ICommand, TerminalManager } from "../../..";
-import c from 'ansi-colors';
+import { ICommand, TerminalManager } from "@/components/TerminalManager";
 import { booking } from "@/overmind/booking";
+import c from 'ansi-colors';
 
 export function printPassenger(index: number, passenger: Passenger, manager: TerminalManager): void {
   

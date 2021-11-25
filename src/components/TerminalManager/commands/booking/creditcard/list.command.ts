@@ -1,4 +1,4 @@
-import { ICommand, TerminalManager } from "../../..";
+import { ICommand, TerminalManager } from "@/components/TerminalManager";
 import { CreditCard } from '@secure-booking-service/common-types';
 import { booking } from "@/overmind/booking";
 import c from 'ansi-colors';

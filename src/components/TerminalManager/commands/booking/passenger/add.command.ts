@@ -1,4 +1,4 @@
-import { ICommand } from "../../..";
+import { ICommand } from "@/components/TerminalManager";
 import isAscii from 'validator/lib/isAscii';
 import isDate from 'validator/lib/isDate';
 import { Passenger } from "@secure-booking-service/common-types";

@@ -1,4 +1,4 @@
-import { ICommand } from "../..";
+import { ICommand } from "@/components/TerminalManager";
 import { booking } from '@/overmind/booking';
 export const newCommand: ICommand = {
   command: "new",

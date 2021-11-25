@@ -1,5 +1,5 @@
 import { booking } from "@/overmind/booking";
-import { ICommand } from "../../..";
+import { ICommand } from "@/components/TerminalManager";
 import { printCreditCard } from "./list.command";
 
 export const removeCommand: ICommand = {
