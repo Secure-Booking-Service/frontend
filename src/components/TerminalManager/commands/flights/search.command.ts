@@ -6,21 +6,55 @@ import { noCurrentBooking } from "../booking/helpers";
 import { printApiError } from "../helper";
 import { FlightOffer } from "@secure-booking-service/common-types";
 import { blue, cyan, red, yellow } from "ansi-colors";
+import isDate from 'validator/lib/isDate';
+import isAfter from 'validator/lib/isAfter';
+import isUppercase from 'validator/lib/isUppercase';
+import isLength from 'validator/lib/isLength';
 
 export const searchCommand: ICommand = {
     command: "search",
     description: "Search a flight",
-    usage: ["ORIGIN", "DESTINATION", "DEPARTURE-DATE"],
+    usage: ["ORIGIN-CODE", "DESTINATION-CODE", "DEPARTURE-DATE"],
     callback: async (manager, ...args) => {
         if (noCurrentBooking()) return;
+        let errors = false;
+
         const adults = booking.state.passengers.length
         if (adults === 0) {
             manager.writeError("No Passenger found!", true);
             manager.writeLine("Please add at least one passenger using 'booking passenger add'")
-            return;
+            errors = true;
         }
+
         const [originLocationCode, destinationLocationCode, departureDate] = args;
-        // TODO: Input Validation
+        
+        // Input Validation
+        const length = { min: 3, max: 3 }
+        if (!isLength(originLocationCode, length) ||
+            !isLength(destinationLocationCode, length) ||
+            !isUppercase(originLocationCode) ||
+            !isUppercase(destinationLocationCode)) {
+            manager.writeError("Invalid origin or destination location code");
+            manager.writeLine("Please enter three uppercase characters");
+            manager.writeLine();
+            errors = true;
+        }
+        if (!isDate(departureDate)) {
+            manager.writeError("Invalid date format: " + departureDate);
+            manager.writeLine("Please enter the departure date in YYYY-MM-DD format");
+            manager.writeLine();
+            errors = true;
+        }
+
+        if (isDate(departureDate) && !isAfter(departureDate)) {
+            manager.writeError("Invalid date: " + departureDate);
+            manager.writeLine("Please enter a departure date in the future");
+            manager.writeLine();
+            errors = true;
+        }
+
+        if (errors) return;
+
         const requestConfig: AxiosRequestConfig = {
             params: {
                 originLocationCode,
