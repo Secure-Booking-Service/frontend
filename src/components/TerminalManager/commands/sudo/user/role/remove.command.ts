@@ -9,9 +9,7 @@ export const removeCommand: ICommand = {
   description: "Remove a role from user",
   usage: ["EMAIL", "ROLE"],
   callback: async (manager, ...args) => {
-
     let errors = 0;
-
     const [email, role] = args;
 
     if (!isEmail(email)) {
@@ -53,8 +51,7 @@ export const removeCommand: ICommand = {
         manager.writeLine();
         console.error(error);
       }
-      
-      
+            
       manager.writeError("User was not updated!", true);
     }
   },
