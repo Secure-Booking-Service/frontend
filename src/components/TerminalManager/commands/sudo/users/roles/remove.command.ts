@@ -4,9 +4,9 @@ import { api } from "@/store/utils/ApiUtil";
 import isEmail from "validator/lib/isEmail";
 import isIn from "validator/lib/isIn";
 
-export const addCommand: ICommand = {
-  command: "add",
-  description: "Add a role to user",
+export const removeCommand: ICommand = {
+  command: "rm",
+  description: "Remove a role from user",
   usage: ["EMAIL", "ROLE"],
   callback: async (manager, ...args) => {
 
@@ -32,8 +32,8 @@ export const addCommand: ICommand = {
       if (errors > 0) throw manager.writeError(errors + " errors!", false);
 
       const payload = {
-        addRoles: [role],
-        removeRoles: []
+        addRoles: [],
+        removeRoles: [role]
       }
 
       const apiReponse = await api.put('/user/' + email, payload);
@@ -53,6 +53,7 @@ export const addCommand: ICommand = {
         manager.writeLine();
         console.error(error);
       }
+      
       
       manager.writeError("User was not updated!", true);
     }
