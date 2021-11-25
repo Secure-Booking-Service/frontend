@@ -20,6 +20,7 @@ export const searchCommand: ICommand = {
         if (noCurrentBooking()) return;
         let errors = false;
 
+        // Check if at least one passenger has been added
         const adults = booking.state.passengers.length
         if (adults === 0) {
             manager.writeError("No Passenger found!", true);
@@ -28,8 +29,8 @@ export const searchCommand: ICommand = {
         }
 
         const [originLocationCode, destinationLocationCode, departureDate] = args;
-        
-        // Input Validation
+
+        // Input validation
         const length = { min: 3, max: 3 }
         if (!isLength(originLocationCode, length) ||
             !isLength(destinationLocationCode, length) ||
@@ -46,16 +47,15 @@ export const searchCommand: ICommand = {
             manager.writeLine();
             errors = true;
         }
-
         if (isDate(departureDate) && !isAfter(departureDate)) {
             manager.writeError("Invalid date: " + departureDate);
             manager.writeLine("Please enter a departure date in the future");
             manager.writeLine();
             errors = true;
         }
-
         if (errors) return;
 
+        // Get, print and save flight offers
         const requestConfig: AxiosRequestConfig = {
             params: {
                 originLocationCode,

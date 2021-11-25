@@ -9,5 +9,5 @@ export const initalState: State = {
 }
 
 export const state: State = {
-  ...initalState, 
+  ...initalState,
 }
