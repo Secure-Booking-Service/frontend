@@ -59,7 +59,7 @@ export function validateArguments(args: string[], command: ICommand): boolean {
 }
 
 /**
- * Prints the error and possible details at the user console
+ * Prints an api error and possible details at the user console
  * @param apiResponse An axios response with a status code other than 2xx
  */
 export function printApiError(apiResponse: AxiosResponse): void {
