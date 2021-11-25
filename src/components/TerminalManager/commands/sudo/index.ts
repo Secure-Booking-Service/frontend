@@ -1,7 +1,7 @@
 import { ICommand } from "@/components/TerminalManager";
 import { executeSubCommand } from "../helper";
 import { powerCommand } from "./power.hidden.command";
-import { userCommand } from "./users";
+import { userCommand } from "./user";
 
 export const sudoCommand: ICommand = {
   command: "sudo",

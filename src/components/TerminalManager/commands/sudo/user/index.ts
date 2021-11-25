@@ -1,14 +1,14 @@
 import { ICommand } from "@/components/TerminalManager";
 import { executeSubCommand } from "../../helper";
-import { rolesCommand } from "./roles";
+import { roleCommand } from "./role";
 
 
 export const userCommand: ICommand = {
   command: "user",
-  description: "Perform adjustments on users",
+  description: "Perform adjustments on a user",
   callback: async (manager, ...args) => {
     const usage = "Usage: [...] user OPERATION";
-    const registeredCommands = [ rolesCommand ];
+    const registeredCommands = [ roleCommand ];
 
     if (args.length === 0) {
       manager.writeError("Missing operation!");

@@ -4,8 +4,8 @@ import { addCommand } from "./add.command";
 import { removeCommand } from "./remove.command";
 
 
-export const rolesCommand: ICommand = {
-  command: "roles",
+export const roleCommand: ICommand = {
+  command: "role",
   description: "Add or remove a role from a user",
   callback: async (manager, ...args) => {
     const usage = "Usage: [...] roles OPERATION";
