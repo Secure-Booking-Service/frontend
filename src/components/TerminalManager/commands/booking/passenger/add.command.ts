@@ -45,17 +45,18 @@ export const addCommand: ICommand = {
     if (errors > 0) {
       manager.writeError(errors + " errors!", false);
       manager.writeError("Passenger not added!", true);
-    } else {
-      const passenger: Passenger = {
-        firstName: firstName.toUpperCase(),
-        lastName: lastName.toUpperCase(),
-        dateOfBirth,
-        gender: gender.toUpperCase()
-      }
-
-      const index = booking.actions.addPassenger(passenger);
-      printPassenger(index, passenger, manager);
-      manager.writeSuccess("Passenger added successfully!", true);
+      return;
     }
+    
+    const passenger: Passenger = {
+      firstName: firstName.toUpperCase(),
+      lastName: lastName.toUpperCase(),
+      dateOfBirth,
+      gender: gender.toUpperCase()
+    }
+
+    const index = booking.actions.addPassenger(passenger);
+    printPassenger(index, passenger, manager);
+    manager.writeSuccess("Passenger added successfully!", true);
   },
 };
