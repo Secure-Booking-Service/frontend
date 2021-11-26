@@ -18,14 +18,14 @@ export const searchCommand: ICommand = {
     usage: ["ORIGIN-CODE", "DESTINATION-CODE", "DEPARTURE-DATE"],
     callback: async (manager, ...args) => {
         if (noCurrentBooking()) return;
-        let errors = false;
+        let hasError = false;
 
         // Check if at least one passenger has been added
         const adults = booking.state.passengers.length
         if (adults === 0) {
             manager.writeError("No passenger found!", true);
             manager.writeLine("Please add at least one passenger using 'booking passenger add'")
-            errors = true;
+            hasError = true;
         }
 
         const [originLocationCode, destinationLocationCode, departureDate] = args;
@@ -39,21 +39,21 @@ export const searchCommand: ICommand = {
             manager.writeError("Invalid origin or destination location code");
             manager.writeLine("Please enter three uppercase characters");
             manager.writeLine();
-            errors = true;
+            hasError = true;
         }
         if (!isDate(departureDate)) {
             manager.writeError("Invalid date format: " + departureDate);
             manager.writeLine("Please enter the departure date in YYYY-MM-DD format");
             manager.writeLine();
-            errors = true;
+            hasError = true;
         }
         if (isDate(departureDate) && !isAfter(departureDate)) {
             manager.writeError("Invalid date: " + departureDate);
             manager.writeLine("Please enter a departure date in the future");
             manager.writeLine();
-            errors = true;
+            hasError = true;
         }
-        if (errors) return;
+        if (hasError) return;
 
         // Get, print and save flight offers
         const requestConfig: AxiosRequestConfig = {
