@@ -1,4 +1,4 @@
-import { ICommand, TerminalManager } from "..";
+import { ICommand, TerminalManager } from "@/components/TerminalManager";
 import { table, TableUserConfig } from "table";
 
 export const helpCommand: ICommand = {

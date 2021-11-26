@@ -3,7 +3,7 @@
 </template>
 
 <script lang="ts">
-import { TerminalManager } from "../components/TerminalManager/index";
+import { TerminalManager } from "@/components/TerminalManager";
 import { Options, Vue } from "vue-class-component";
 import "xterm/css/xterm.css";
 

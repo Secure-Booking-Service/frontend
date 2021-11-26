@@ -1,4 +1,5 @@
-import { ICommand, TerminalManager } from "..";
+import { AxiosResponse } from "axios";
+import { ICommand, TerminalManager } from "@/components/TerminalManager";
 import { displayTableFor } from "./help.command";
 
 export function shift(args: string[]): string[] {
@@ -34,7 +35,7 @@ export async function executeSubCommand(registeredCommands: ICommand[], args: st
 
 /**
  * Validates the given args array according to the expected length of the calling function.
- * Retruns true, if the validation FAILED.
+ * Returns true, if the validation FAILED.
  * 
  * @param args Array of strings
  * @param expected Number of expected
@@ -55,4 +56,20 @@ export function validateArguments(args: string[], command: ICommand): boolean {
   }
 
   return false; // validation was successful
+}
+
+/**
+ * Prints an api error and possible details at the user console
+ * @param apiResponse An axios response with a status code other than 2xx
+ */
+export function printApiError(apiResponse: AxiosResponse): void {
+  const manager = TerminalManager.Instance;
+  manager.writeError("Error: " + apiResponse.statusText);
+  const errors = apiResponse.data.error;
+  if (errors instanceof Array && errors.length !== 0) {
+      manager.writeError("Details:");
+      errors.forEach((err: any) => {
+          manager.writeError("- " + err.message);
+      });
+  }
 }

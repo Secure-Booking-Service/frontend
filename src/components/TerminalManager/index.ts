@@ -12,6 +12,7 @@ import {
   registerCommand as registrationCommand,
   sudoCommand,
   bookingCommand,
+  flightCommand,
 } from "./commands";
 
 /**
@@ -176,6 +177,7 @@ export class TerminalManager {
     this.registerCommand(echoCommand);
     this.registerCommand(bookingCommand);
     this.registerCommand(sudoCommand);
+    this.registerCommand(flightCommand);
   }
 
   /**
@@ -184,7 +186,7 @@ export class TerminalManager {
   private runCommand(): void {
     // Seperate command and arguments
     const [keyword, ...args] = this.currentCommand.trim().split(" ").filter(i => i !== "");
-    if (keyword.length > 0) {
+    if (keyword?.length > 0) {
       this.commandHistory.push(this.currentCommand);
       this.terminal.writeln(""); // Newline for command output
       const foundCommand = this.registeredCommands.filter((cmd) => cmd.command === keyword);

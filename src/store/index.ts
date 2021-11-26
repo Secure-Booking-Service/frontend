@@ -16,7 +16,6 @@ export default createStore({
   },
   actions: {
     verifyToken(context) {
-      // if (!context.getters.isLoggedIn) return Promise.resolve();
 
       context.commit("SET_AUTH");
       return new Promise<void>((resolve, reject) => {

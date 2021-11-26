@@ -2,14 +2,13 @@ import { Booking, Passenger } from "@secure-booking-service/common-types"
 
 export interface State extends Partial<Booking> {
   passengers: Passenger[],
-  flights: any[],
-  wasSuccessfullyValidated: boolean;
+  wasSuccessfullyValidated: boolean,
   hasBookingStarted: boolean
 }
 
 export const initalState: State = {
   passengers: [],
-  flights: [],
+  flightOffer: undefined,
   creditCard: undefined,
   wasSuccessfullyValidated: false,
   hasBookingStarted: false

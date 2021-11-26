@@ -1,4 +1,4 @@
-import { TerminalManager } from ".";
+import { TerminalManager } from "@/components/TerminalManager";
 
 export const apiErrorHandler = (
   manager: TerminalManager,

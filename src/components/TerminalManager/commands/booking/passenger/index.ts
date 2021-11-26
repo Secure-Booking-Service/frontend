@@ -12,7 +12,7 @@ export const passengerCommand: ICommand = {
     const usage = "Usage: booking passenger OPERATION";
     const registeredCommands = [ addCommand, listCommand, removeCommand ];
     
-    if (noCurrentBooking(manager)) return;
+    if (noCurrentBooking()) return;
 
     if (args.length === 0) {
       manager.writeError("Missing operation!");

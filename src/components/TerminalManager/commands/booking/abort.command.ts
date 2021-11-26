@@ -6,7 +6,7 @@ export const abortCommand: ICommand = {
   command: "abort",
   description: "Abort the current booking",
   callback: async (manager, ...args) => {
-    if (noCurrentBooking(manager)) return;
+    if (noCurrentBooking()) return;
 
     if (!args.includes('-f')) {
       manager.writeLine("Are you sure to cancel to current booking?")
