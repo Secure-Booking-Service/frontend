@@ -23,7 +23,7 @@ export const searchCommand: ICommand = {
         // Check if at least one passenger has been added
         const adults = booking.state.passengers.length
         if (adults === 0) {
-            manager.writeError("No Passenger found!", true);
+            manager.writeError("No passenger found!", true);
             manager.writeLine("Please add at least one passenger using 'booking passenger add'")
             errors = true;
         }

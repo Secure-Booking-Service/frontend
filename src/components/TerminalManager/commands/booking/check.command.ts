@@ -15,7 +15,7 @@ export const checkCommand: ICommand = {
     
     let errors = 0;
     if (booking.state.flightOffer === undefined) {
-      manager.writeError("No flights selected! Use 'booking select'", true);
+      manager.writeError("No flights selected! Use 'flight select'", true);
       errors++;
     }
 

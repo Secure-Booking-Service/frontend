@@ -9,7 +9,7 @@ export const newCommand: ICommand = {
       manager.writeLine("Use 'check' to view the details or 'abort' to cancel the booking");
       return;
     }
-    manager.writeLine("New booking created");
+    manager.writeSuccess("New booking created", true);
     booking.actions.newBooking();
   },
 };
