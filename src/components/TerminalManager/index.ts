@@ -343,27 +343,28 @@ export class TerminalManager {
           this.terminal.write(ansiEscapes.cursorRestorePosition);
         }
         break;
-      default:
-        // Print all other characters (if printable)
-        if ((text >= String.fromCharCode(0x20) && text <= String.fromCharCode(0x7b))
-           || text >= "\u00a0") {
-          // Insert char / text at cursor position
-          const first = this.currentCommand.slice(0, this.tPosition);
-          const last = this.currentCommand.slice(this.tPosition);
-          this.currentCommand = first + text + last;
-          // Overwrite old contents with the inserted char / text,
-          // followed by the remaining part and then move the cursor
-          // back to the insert position;
-          if (last.length > 0) {
-            this.terminal.write(ansiEscapes.cursorSavePosition);
-            this.terminal.write(text + last);
-            this.terminal.write(ansiEscapes.cursorRestorePosition);
-            this.moveCursor(text.length);
-          } else {
-            this.terminal.write(text);
-            this.tPosition += text.length;
-          }
+      default: {
+        // Filter non printable characters
+        text = Array.from(text).filter(char => {
+          return (char >= String.fromCharCode(0x20) && char <= String.fromCharCode(0x7b)) || char >= "\u00a0";
+        }).join("")
+        // Insert char / text at cursor position
+        const first = this.currentCommand.slice(0, this.tPosition);
+        const last = this.currentCommand.slice(this.tPosition);
+        this.currentCommand = first + text + last;
+        // Overwrite old contents with the inserted char / text,
+        // followed by the remaining part and then move the cursor
+        // back to the insert position;
+        if (last.length > 0) {
+          this.terminal.write(ansiEscapes.cursorSavePosition);
+          this.terminal.write(text + last);
+          this.terminal.write(ansiEscapes.cursorRestorePosition);
+          this.moveCursor(text.length);
+        } else {
+          this.terminal.write(text);
+          this.tPosition += text.length;
         }
+      }
     }
   }
 
