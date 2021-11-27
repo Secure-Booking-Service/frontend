@@ -28,7 +28,7 @@ export const selectCommand: ICommand = {
     };
     if (!isInt(flightId, bounds)) {
         manager.writeError("Invalid flight id");
-        manager.writeLine("Please enter an id between 1 and " + flights.state.flightOffers.length);
+        manager.writeLine("Please enter a number between 1 and " + flights.state.flightOffers.length);
         manager.writeLine();
         return;
     }
