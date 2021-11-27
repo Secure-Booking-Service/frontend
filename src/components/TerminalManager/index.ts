@@ -48,6 +48,8 @@ export class TerminalManager {
   private tPosition = 0;
   /** Locks terminal during command execution */
   private isLocked = false;
+  /** Buffer for multi-line commands */
+  private commandBuffer = ""
 
   /**
    * Contructs the main terminal object (singleton contructor)
@@ -202,12 +204,17 @@ export class TerminalManager {
         execution.finally(() => {
           this.isLocked = false;
           this.printPrompt();
+          // Continue processing if multi-line command entered
+          if (this.commandBuffer !== "") {
+            this.inputProcessing(this.commandBuffer);
+          }
         });
       } else {
         this.writeError(`${keyword}: command not found`);
         this.printPrompt();
       }
     } else {
+      // Nothing (or whitespace only) entered
       this.printPrompt();
     }
   }
@@ -344,6 +351,14 @@ export class TerminalManager {
         }
         break;
       default: {
+        // Check for multi-line commands
+        if (/\r\n|\r|\n/.test(text)) {
+          const [firstLine, /**newlineChar*/, otherLines] = text.split(/(\r\n|\r|\n)([\s\S]*)/);
+          this.commandBuffer = otherLines;
+          text = firstLine;
+        } else {
+          this.commandBuffer = "";
+        }
         // Filter non printable characters
         text = Array.from(text).filter(char => {
           return (char >= String.fromCharCode(0x20) && char <= String.fromCharCode(0x7b)) || char >= "\u00a0";
@@ -363,6 +378,11 @@ export class TerminalManager {
         } else {
           this.terminal.write(text);
           this.tPosition += text.length;
+        }
+        // Run current line of multi-line command
+        if (this.commandBuffer !== "") {
+          // Simulate enter key
+          this.inputProcessing("\r");
         }
       }
     }
