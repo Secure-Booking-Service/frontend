@@ -5,7 +5,6 @@ import { blue, cyan, red, yellow } from "ansi-colors";
 /**
  * Prints the given array of flight offers to the console
  * @param offers Array of flight offers to print
- * @param manager Instace of terminal manager
  */
  export function printFlightOffers(offers: FlightOffer[]): void {
     const manager = TerminalManager.Instance;
@@ -16,9 +15,8 @@ import { blue, cyan, red, yellow } from "ansi-colors";
 }
 
 /**
- * Prints the given array of flight offers to the console
- * @param offers Array of flight offers to print
- * @param manager Instace of terminal manager
+ * Prints the given flight offer to the console
+ * @param offer Flight offer to print
  */
  export function printFlightOffer(offer: FlightOffer, index: number): void {
     const manager = TerminalManager.Instance;
