@@ -1,16 +1,15 @@
 import { AxiosRequestConfig } from "axios";
-import { ICommand, TerminalManager } from "@/components/TerminalManager";
-import { api } from "../../../../store/utils/ApiUtil";
+import { ICommand } from "@/components/TerminalManager";
+import { api } from "@/store/utils/ApiUtil";
 import { booking } from "@/overmind/booking";
 import { noCurrentBooking } from "../booking/helpers";
 import { printApiError } from "../helper";
-import { FlightOffer } from "@secure-booking-service/common-types";
-import { blue, cyan, red, yellow } from "ansi-colors";
 import isDate from 'validator/lib/isDate';
 import isAfter from 'validator/lib/isAfter';
 import isUppercase from 'validator/lib/isUppercase';
 import isLength from 'validator/lib/isLength';
 import { flights } from "@/overmind/flights";
+import { printFlightOffers } from "./helpers";
 
 export const searchCommand: ICommand = {
     command: "search",
@@ -66,13 +65,18 @@ export const searchCommand: ICommand = {
         }
         try {
             const apiResponse = await api.get("/flights", requestConfig)
-            if (apiResponse.status === 200) {
-                const flightOffers = apiResponse.data.data;
-                printFlightOffers(flightOffers, manager);
-                flights.actions.addFlightOffers(flightOffers);
-            } else {
+            if (apiResponse.status !== 200) {
                 printApiError(apiResponse);
+                return;
             }
+            const flightOffers = apiResponse.data.data;
+            if (flightOffers.length > 0) {
+                manager.writeSuccess(`Found ${flightOffers.length} flights`, true);
+                printFlightOffers(flightOffers);
+            } else {
+                manager.writeError(`No flights found!`, true);
+            }
+            flights.actions.addFlightOffers(flightOffers);
         }
         catch (error: unknown) {
             if (error !== undefined && error instanceof Error) {
@@ -83,36 +87,3 @@ export const searchCommand: ICommand = {
         }
     },
 };
-
-/**
- * Prints the given array of flight offers to the console
- * @param offers Array of flight offers to print
- * @param manager Instace of terminal manager
- */
-function printFlightOffers(offers: FlightOffer[], manager: TerminalManager): void {
-    if (offers.length > 0)
-        manager.writeSuccess(`Found ${offers.length} flights`, true);
-    else
-        manager.writeError(`No flights found!`, true);
-
-    manager.writeLine();
-    offers.forEach((offer, index) => {
-        manager.writeLine(`Flight number: ${blue.bold(String(index + 1))}`);
-        manager.writeLine(`Bookable seats: ${offer.numberOfBookableSeats}`);
-        manager.writeLine(`Stops: ${offer.stops}`);
-        manager.writeLine(`Price: ${offer.price} ${offer.currency}`);
-        manager.writeLine("Itinaries:");
-        offer.flights.forEach(flight => {
-            const departureDate = new Date(flight.departure.at).toUTCString().substr(0, 16);
-            const departureTime = new Date(flight.departure.at).toUTCString().substr(17, 5) + " GMT";
-            const arrivalDate = new Date(flight.arrival.at).toUTCString().substr(0, 16);
-            const arrivalTime = new Date(flight.arrival.at).toUTCString().substr(17, 5) + " GMT";
-            manager.write(`\t${yellow.bold(flight.departure.iataCode)}`);
-            manager.write(` on ${departureDate} ${cyan.bold(departureTime)}`);
-            manager.write(` ${red.bold('→')} ${yellow.bold(flight.arrival.iataCode)}`);
-            manager.write(` on ${arrivalDate} ${cyan.bold(arrivalTime)}`);
-            manager.write(` (${flight.duration.substr(2)})\r\n`);
-        });
-        manager.writeLine();
-    });
-}
