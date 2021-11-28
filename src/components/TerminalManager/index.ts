@@ -331,6 +331,9 @@ export class TerminalManager {
    * @param text A single entered character or pasted string
    */
   private inputProcessing(text: string): void {
+    // Block input while command is running
+    if (this.isLocked) return;
+
     switch (text) {
       case "\u0003": // Ctrl+C
         // Move cursor to the end of the command
