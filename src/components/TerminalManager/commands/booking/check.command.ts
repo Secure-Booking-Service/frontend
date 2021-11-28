@@ -3,6 +3,7 @@ import { ICommand } from "@/components/TerminalManager";
 import { printCreditCard } from "./creditcard/list.command";
 import { noCurrentBooking } from "./helpers";
 import { printPassenger } from "./passenger/list.command";
+import { printFlightOffer } from "../flights/helpers";
 
 export const checkCommand: ICommand = {
   command: "check",
@@ -17,6 +18,9 @@ export const checkCommand: ICommand = {
     if (booking.state.flightOffer === undefined) {
       manager.writeError("No flights selected! Use 'flight select'", true);
       errors++;
+    } else {
+      manager.writeLine("Flight offer:");
+      printFlightOffer(booking.state.flightOffer);
     }
 
     if (booking.state.passengers.length === 0) {
