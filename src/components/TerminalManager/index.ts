@@ -363,45 +363,53 @@ export class TerminalManager {
           this.terminal.write(ansiEscapes.cursorRestorePosition);
         }
         break;
-      default: {
-        if (text.length > 1){
-          // Remove beginning or trailing whitespace
-          text = text.trim()
-        }
-        // Check for multi-line commands
-        if (/\r\n|\r|\n/.test(text)) {
-          const [firstLine, /**newlineChar*/, otherLines] = text.split(/(\r\n|\r|\n)([\s\S]*)/);
-          this.commandBuffer = otherLines;
-          text = firstLine;
-        } else {
-          // No multi-line or last line of multi-line cmd
-          this.commandBuffer = "";
-        }
-        // Filter non printable characters
-        text = Array.from(text).filter(char => {
-          return (char >= String.fromCharCode(0x20) && char <= String.fromCharCode(0x7d)) || char >= "\u00a0";
-        }).join("")
-        // Insert char / text at cursor position
-        const first = this.currentCommand.slice(0, this.tPosition);
-        const last = this.currentCommand.slice(this.tPosition);
-        this.currentCommand = first + text + last;
-        // Overwrite old contents with the inserted char / text,
-        // followed by the remaining part and then move the cursor
-        // back to the insert position;
-        if (last.length > 0) {
-          this.terminal.write(ansiEscapes.cursorSavePosition);
-          this.terminal.write(text + last);
-          this.terminal.write(ansiEscapes.cursorRestorePosition);
-          this.moveCursor(text.length);
-        } else {
-          this.terminal.write(text);
-          this.tPosition += text.length;
-        }
-        // Run current line if multi-line command
-        if (this.commandBuffer !== "") {
-          this.inputProcessing("\r");
-        }
-      }
+      default: 
+        this.writeUserInput(text);
+    }
+  }
+
+  /**
+   * Writes a given *user input* to the terminal output.
+   * 
+   * @param text The text to write
+   */
+  private writeUserInput(text: string): void {
+    if (text.length > 1) {
+      // Remove beginning or trailing whitespace
+      text = text.trim()
+    }
+    // Check for multi-line commands
+    if (/\r\n|\r|\n/.test(text)) {
+      const [firstLine, /**newlineChar*/, otherLines] = text.split(/(\r\n|\r|\n)([\s\S]*)/);
+      this.commandBuffer = otherLines;
+      text = firstLine;
+    } else {
+      // No multi-line or last line of multi-line cmd
+      this.commandBuffer = "";
+    }
+    // Filter non printable characters
+    text = Array.from(text).filter(char => {
+      return (char >= String.fromCharCode(0x20) && char <= String.fromCharCode(0x7d)) || char >= "\u00a0";
+    }).join("")
+    // Insert char / text at cursor position
+    const first = this.currentCommand.slice(0, this.tPosition);
+    const last = this.currentCommand.slice(this.tPosition);
+    this.currentCommand = first + text + last;
+    // Overwrite old contents with the inserted char / text,
+    // followed by the remaining part and then move the cursor
+    // back to the insert position;
+    if (last.length > 0) {
+      this.terminal.write(ansiEscapes.cursorSavePosition);
+      this.terminal.write(text + last);
+      this.terminal.write(ansiEscapes.cursorRestorePosition);
+      this.moveCursor(text.length);
+    } else {
+      this.terminal.write(text);
+      this.tPosition += text.length;
+    }
+    // Run current line if multi-line command
+    if (this.commandBuffer !== "") {
+      this.inputProcessing("\r");
     }
   }
 
