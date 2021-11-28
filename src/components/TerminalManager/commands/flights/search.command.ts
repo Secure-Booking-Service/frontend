@@ -71,8 +71,8 @@ export const searchCommand: ICommand = {
       }
       const flightOffers = apiResponse.data.data;
       if (flightOffers.length > 0) {
-        manager.writeSuccess(`Found ${flightOffers.length} flights`, true);
         printFlightOffers(flightOffers);
+        manager.writeSuccess(`Found ${flightOffers.length} flights`, true);
       } else {
         manager.writeError(`No flights found!`, true);
       }

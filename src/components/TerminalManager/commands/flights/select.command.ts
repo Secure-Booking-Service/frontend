@@ -40,9 +40,8 @@ export const selectCommand: ICommand = {
     booking.actions.addFlightOffer(selectedFlightOfferCopy);
 
     // Print confirmation
-    manager.writeSuccess("The following flight order has been selected:", true);
-    manager.writeLine();
     printFlightOffer(selectedFlightOffer, index + 1);
+    manager.writeSuccess("The above flight order has been selected", true);
 
   },
 };
