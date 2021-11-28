@@ -291,24 +291,27 @@ export class TerminalManager {
    * Waits for the user to press a key.
    * Does *not* work with the 'Enter' key.
    * @param question The user question for the answer options, eg. 'Continue?'
-   * @param expectedInput Array of valid input chars, defaults to ['y', 'n']
+   * @param validAnswers Array of valid input chars, defaults to ['y', 'n']
    * @returns A promise for the first key entered by the user
    */
-  public async runUserQuery(question: string, expectedInput: Array<string> = ['y', 'n']): Promise<string> {
+  public async runUserQuery(question: string, validAnswers: Array<string> = ['y', 'n']): Promise<string> {
     // Write question
-    this.write(`${question} (${expectedInput.join("/")}) `)
+    this.write(`${question} (${validAnswers.join("/")}) `)
     // Create promise and activate query
     let answer: string = await new Promise(resolve => this.resolveUserQuery = resolve);
+    // Write answer to terminal
+    this.writeLine(answer);
+
     // Check user input
-    while (!expectedInput.includes(answer)) {
-      this.write("\r\nIllegal input: ");
-      this.writeError(answer);
-      this.write(`${question} (${expectedInput.join("/")}) `)
+    while (!validAnswers.includes(answer)) {
+      this.writeError("Illegal input!");
+      this.write(`${question} (${validAnswers.join("/")}) `)
       // Create new promise
       answer = await new Promise(resolve => this.resolveUserQuery = resolve);
+      // Write answer to terminal
+      this.writeLine(answer);
     }
-    // Write answer
-    this.writeLine(answer);
+
     // Deactivate query and return answer
     this.resolveUserQuery = undefined;
     return Promise.resolve(answer);
