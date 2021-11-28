@@ -48,6 +48,8 @@ export class TerminalManager {
   private tPosition = 0;
   /** Locks terminal during command execution */
   private isLocked = false;
+  /** Buffer for multi-line commands */
+  private commandBuffer = ""
 
   /**
    * Contructs the main terminal object (singleton contructor)
@@ -201,14 +203,32 @@ export class TerminalManager {
         // Unlock terminal and print prompt
         execution.finally(() => {
           this.isLocked = false;
-          this.printPrompt();
+          this.postCommandProcessing();
         });
       } else {
         this.writeError(`${keyword}: command not found`);
-        this.printPrompt();
+        this.postCommandProcessing();
       }
     } else {
-      this.printPrompt();
+      // Nothing (or whitespace only) entered
+      this.postCommandProcessing();
+    }
+  }
+
+  /**
+   * Cleanup and variable reset after a command run.
+   */
+  private postCommandProcessing(): void {
+    // Print a new prompt after each command run (enter key)
+    this.printPrompt();
+    // Update current command history position
+    this.commandHistoryPosition = this.commandHistory.length;
+    // Reset input and cursor variables
+    this.currentCommand = "";
+    this.tPosition = 0;
+    // Continue processing if multi-line command entered
+    if (this.commandBuffer !== "") {
+      this.inputProcessing(this.commandBuffer);
     }
   }
 
@@ -322,9 +342,6 @@ export class TerminalManager {
         // Move cursor to the end of the command
         this.moveCursor(this.currentCommand.length - this.tPosition);
         this.runCommand();
-        this.commandHistoryPosition = this.commandHistory.length;
-        this.currentCommand = "";
-        this.tPosition = 0;
         break;
       case "\u007F": // Backspace (DEL)
         // Do not delete the prompt
@@ -343,27 +360,45 @@ export class TerminalManager {
           this.terminal.write(ansiEscapes.cursorRestorePosition);
         }
         break;
-      default:
-        // Print all other characters (if printable)
-        if ((text >= String.fromCharCode(0x20) && text <= String.fromCharCode(0x7b))
-           || text >= "\u00a0") {
-          // Insert char / text at cursor position
-          const first = this.currentCommand.slice(0, this.tPosition);
-          const last = this.currentCommand.slice(this.tPosition);
-          this.currentCommand = first + text + last;
-          // Overwrite old contents with the inserted char / text,
-          // followed by the remaining part and then move the cursor
-          // back to the insert position;
-          if (last.length > 0) {
-            this.terminal.write(ansiEscapes.cursorSavePosition);
-            this.terminal.write(text + last);
-            this.terminal.write(ansiEscapes.cursorRestorePosition);
-            this.moveCursor(text.length);
-          } else {
-            this.terminal.write(text);
-            this.tPosition += text.length;
-          }
+      default: {
+        if (text.length > 1){
+          // Remove beginning or trailing whitespace
+          text = text.trim()
         }
+        // Check for multi-line commands
+        if (/\r\n|\r|\n/.test(text)) {
+          const [firstLine, /**newlineChar*/, otherLines] = text.split(/(\r\n|\r|\n)([\s\S]*)/);
+          this.commandBuffer = otherLines;
+          text = firstLine;
+        } else {
+          // No multi-line or last line of multi-line cmd
+          this.commandBuffer = "";
+        }
+        // Filter non printable characters
+        text = Array.from(text).filter(char => {
+          return (char >= String.fromCharCode(0x20) && char <= String.fromCharCode(0x7d)) || char >= "\u00a0";
+        }).join("")
+        // Insert char / text at cursor position
+        const first = this.currentCommand.slice(0, this.tPosition);
+        const last = this.currentCommand.slice(this.tPosition);
+        this.currentCommand = first + text + last;
+        // Overwrite old contents with the inserted char / text,
+        // followed by the remaining part and then move the cursor
+        // back to the insert position;
+        if (last.length > 0) {
+          this.terminal.write(ansiEscapes.cursorSavePosition);
+          this.terminal.write(text + last);
+          this.terminal.write(ansiEscapes.cursorRestorePosition);
+          this.moveCursor(text.length);
+        } else {
+          this.terminal.write(text);
+          this.tPosition += text.length;
+        }
+        // Run current line if multi-line command
+        if (this.commandBuffer !== "") {
+          this.inputProcessing("\r");
+        }
+      }
     }
   }
 
