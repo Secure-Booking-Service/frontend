@@ -18,7 +18,7 @@ export async function executeSubCommand(registeredCommands: ICommand[], args: st
     manager.writeError("Unknown operation: " + command.toLocaleLowerCase());
     manager.writeLine("Available operations: ");
     displayTableFor(registeredCommands, manager);
-    return false
+    return false;
   }
 
   const [ execCommand ] = exeCommands;

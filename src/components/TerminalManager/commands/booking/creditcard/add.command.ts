@@ -39,7 +39,7 @@ export const addCommand: ICommand = {
       errors++;
     }
 
-    const validation = expireDate.match(/^(0[1-9]|1[0-2])\/?([0-9]{4}|[0-9]{2})$/)
+    const validation = expireDate.match(/^(0[1-9]|1[0-2])\/?([0-9]{4}|[0-9]{2})$/);
     
     // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
     if (validation === null || validation!.length !== 3) {
@@ -57,7 +57,7 @@ export const addCommand: ICommand = {
         expire: expireDate,
         holder: firstName.toUpperCase() + " " + lastName.toUpperCase(),
         number,
-      }
+      };
 
       booking.actions.addCreditCard(card);
       printCreditCard(card, manager);

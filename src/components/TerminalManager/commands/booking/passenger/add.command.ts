@@ -53,7 +53,7 @@ export const addCommand: ICommand = {
       lastName: lastName.toUpperCase(),
       dateOfBirth,
       gender: gender.toUpperCase()
-    }
+    };
 
     const index = booking.actions.addPassenger(passenger);
     printPassenger(index, passenger, manager);

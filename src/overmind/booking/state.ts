@@ -1,4 +1,4 @@
-import { Booking, Passenger } from "@secure-booking-service/common-types"
+import { Booking, Passenger } from "@secure-booking-service/common-types";
 
 export interface State extends Partial<Booking> {
   passengers: Passenger[],
@@ -12,8 +12,8 @@ export const initalState: State = {
   creditCard: undefined,
   wasSuccessfullyValidated: false,
   hasBookingStarted: false
-}
+};
 
 export const state: State = {
   ...initalState, 
-}
+};

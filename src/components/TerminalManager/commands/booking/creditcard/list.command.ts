@@ -23,6 +23,6 @@ export const listCommand: ICommand = {
     manager.writeLine();
 
     // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-    printCreditCard(booking.state.creditCard!, manager)
+    printCreditCard(booking.state.creditCard!, manager);
   },
 };

@@ -49,7 +49,9 @@ export class TerminalManager {
   /** Locks terminal during command execution */
   private isLocked = false;
   /** Buffer for multi-line commands */
-  private commandBuffer = ""
+  private commandBuffer = "";
+  /** Promise resolve function for transmitting user input during cmd run */
+  private resolveUserQuery: ((value: string | PromiseLike<string>) => void) | undefined;
 
   /**
    * Contructs the main terminal object (singleton contructor)
@@ -286,11 +288,42 @@ export class TerminalManager {
   }
 
   /**
+   * Waits for the user to press a key.
+   * Does *not* work with the 'Enter' key.
+   * @param question The user question for the answer options, eg. 'Continue?'
+   * @param validAnswers Array of valid input chars, defaults to ['y', 'n']
+   * @returns A promise for the first key entered by the user
+   */
+  public async runUserQuery(question: string, validAnswers: Array<string> = ['y', 'n']): Promise<string> {
+    let answer = "";
+    while (!validAnswers.includes(answer)) {
+      // Write question
+      this.write(`${question} (${validAnswers.join("/")}) `);
+      // Create promise and activate query
+      answer = await new Promise(resolve => this.resolveUserQuery = resolve);
+      // Write answer to terminal
+      this.writeLine(answer);
+      // Check user input
+      if (!validAnswers.includes(answer)) 
+        this.writeError("Illegal input!");
+    }
+
+    // Deactivate query and return answer
+    this.resolveUserQuery = undefined;
+    return Promise.resolve(answer);
+  }
+
+  /**
    * Handles raw keyboard events entered in the terminal.
    * @param event The keyboard event triggered
    * @returns True if the event should be further processed internally by xterm
    */
   private inputPreProcessing(event: KeyboardEvent): boolean {
+    // Check if user query is running
+    if (this.resolveUserQuery !== undefined && event.key !== "Enter" && event.type === "keyup") {
+      this.resolveUserQuery(event.key);
+      return false;
+    }
     // Block input while command is running
     if (this.isLocked) return false;
 
@@ -331,6 +364,9 @@ export class TerminalManager {
    * @param text A single entered character or pasted string
    */
   private inputProcessing(text: string): void {
+    // Block input while command is running
+    if (this.isLocked) return;
+
     switch (text) {
       case "\u0003": // Ctrl+C
         // Move cursor to the end of the command
@@ -360,45 +396,53 @@ export class TerminalManager {
           this.terminal.write(ansiEscapes.cursorRestorePosition);
         }
         break;
-      default: {
-        if (text.length > 1){
-          // Remove beginning or trailing whitespace
-          text = text.trim()
-        }
-        // Check for multi-line commands
-        if (/\r\n|\r|\n/.test(text)) {
-          const [firstLine, /**newlineChar*/, otherLines] = text.split(/(\r\n|\r|\n)([\s\S]*)/);
-          this.commandBuffer = otherLines;
-          text = firstLine;
-        } else {
-          // No multi-line or last line of multi-line cmd
-          this.commandBuffer = "";
-        }
-        // Filter non printable characters
-        text = Array.from(text).filter(char => {
-          return (char >= String.fromCharCode(0x20) && char <= String.fromCharCode(0x7d)) || char >= "\u00a0";
-        }).join("")
-        // Insert char / text at cursor position
-        const first = this.currentCommand.slice(0, this.tPosition);
-        const last = this.currentCommand.slice(this.tPosition);
-        this.currentCommand = first + text + last;
-        // Overwrite old contents with the inserted char / text,
-        // followed by the remaining part and then move the cursor
-        // back to the insert position;
-        if (last.length > 0) {
-          this.terminal.write(ansiEscapes.cursorSavePosition);
-          this.terminal.write(text + last);
-          this.terminal.write(ansiEscapes.cursorRestorePosition);
-          this.moveCursor(text.length);
-        } else {
-          this.terminal.write(text);
-          this.tPosition += text.length;
-        }
-        // Run current line if multi-line command
-        if (this.commandBuffer !== "") {
-          this.inputProcessing("\r");
-        }
-      }
+      default: 
+        this.writeUserInput(text);
+    }
+  }
+
+  /**
+   * Writes a given *user input* to the terminal output.
+   * 
+   * @param text The text to write
+   */
+  private writeUserInput(text: string): void {
+    if (text.length > 1) {
+      // Remove beginning or trailing whitespace
+      text = text.trim();
+    }
+    // Check for multi-line commands
+    if (/\r\n|\r|\n/.test(text)) {
+      const [firstLine, /**newlineChar*/, otherLines] = text.split(/(\r\n|\r|\n)([\s\S]*)/);
+      this.commandBuffer = otherLines;
+      text = firstLine;
+    } else {
+      // No multi-line or last line of multi-line cmd
+      this.commandBuffer = "";
+    }
+    // Filter non printable characters
+    text = Array.from(text).filter(char => {
+      return (char >= String.fromCharCode(0x20) && char <= String.fromCharCode(0x7d)) || char >= "\u00a0";
+    }).join("");
+    // Insert char / text at cursor position
+    const first = this.currentCommand.slice(0, this.tPosition);
+    const last = this.currentCommand.slice(this.tPosition);
+    this.currentCommand = first + text + last;
+    // Overwrite old contents with the inserted char / text,
+    // followed by the remaining part and then move the cursor
+    // back to the insert position;
+    if (last.length > 0) {
+      this.terminal.write(ansiEscapes.cursorSavePosition);
+      this.terminal.write(text + last);
+      this.terminal.write(ansiEscapes.cursorRestorePosition);
+      this.moveCursor(text.length);
+    } else {
+      this.terminal.write(text);
+      this.tPosition += text.length;
+    }
+    // Run current line if multi-line command
+    if (this.commandBuffer !== "") {
+      this.inputProcessing("\r");
     }
   }
 
@@ -426,7 +470,7 @@ export class TerminalManager {
   public writeError(error: string, icon = false): void {
     const style = c.red.bold;
     if (icon) {
-      this.terminal.writeln(style("✖") + " " + error)
+      this.terminal.writeln(style("✖") + " " + error);
     } else {
       this.terminal.writeln(style(error));
     }
@@ -443,7 +487,7 @@ export class TerminalManager {
   public writeWarning(warning: string, icon = false): void {
     const style = c.yellow.bold;
     if (icon) {
-      this.terminal.writeln(style("⚠") + " " + warning)
+      this.terminal.writeln(style("⚠") + " " + warning);
     } else {
       this.terminal.writeln(style(warning));
     }
@@ -460,7 +504,7 @@ export class TerminalManager {
   public writeSuccess(success: string, icon = false): void {
     const style = c.green.bold;
     if (icon) {
-      this.terminal.writeln(style("✔") + " " + success)
+      this.terminal.writeln(style("✔") + " " + success);
     } else {
       this.terminal.writeln(style(success));
     }
@@ -477,7 +521,7 @@ export class TerminalManager {
   public writeInfo(info: string, icon = false): void {
     const style = c.blueBright.bold;
     if (icon) {
-      this.terminal.writeln(style("ℹ") + " " + info)
+      this.terminal.writeln(style("ℹ") + " " + info);
     } else {
       this.terminal.writeln(style(info));
     }

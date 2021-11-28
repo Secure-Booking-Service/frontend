@@ -5,7 +5,7 @@ export const newCommand: ICommand = {
   description: "Start a new booking process",
   callback: async (manager) => {
     if (booking.state.hasBookingStarted) {
-      manager.writeError("A booking process has been already started!")
+      manager.writeError("A booking process has been already started!");
       manager.writeLine("Use 'check' to view the details or 'abort' to cancel the booking");
       return;
     }
