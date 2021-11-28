@@ -361,8 +361,10 @@ export class TerminalManager {
         }
         break;
       default: {
-        // Remove beginning or trailing whitespace
-        text = text.trim()
+        if (text.length > 1){
+          // Remove beginning or trailing whitespace
+          text = text.trim()
+        }
         // Check for multi-line commands
         if (/\r\n|\r|\n/.test(text)) {
           const [firstLine, /**newlineChar*/, otherLines] = text.split(/(\r\n|\r|\n)([\s\S]*)/);
