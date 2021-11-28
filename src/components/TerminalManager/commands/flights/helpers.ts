@@ -25,9 +25,10 @@ import { blue, cyan, red, yellow } from "ansi-colors";
  * @param offer Flight offer to print
  * @param index The flight number to print
  */
- export function printFlightOffer(offer: FlightOffer, index: number): void {
+ export function printFlightOffer(offer: FlightOffer, index?: number): void {
   const manager = TerminalManager.Instance;
-  manager.writeLine(`Flight number: ${blue.bold(String(index))}`);
+  if (index !== undefined)
+    manager.writeLine(`Flight number: ${blue.bold(String(index))}`);
   manager.writeLine(`Bookable seats: ${offer.numberOfBookableSeats}`);
   manager.writeLine(`Stops: ${offer.stops}`);
   manager.writeLine(`Price: ${offer.price} ${offer.currency}`);
