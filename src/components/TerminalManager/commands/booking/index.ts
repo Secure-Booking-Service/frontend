@@ -19,6 +19,6 @@ export const bookingCommand: ICommand = {
       return manager.writeLine(usage);
     }
 
-    executeSubCommand(registeredCommands, args);
+    await executeSubCommand(registeredCommands, args);
   },
 };

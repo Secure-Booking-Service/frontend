@@ -5,7 +5,7 @@ import { printCreditCard } from "./list.command";
 export const removeCommand: ICommand = {
   command: "rm",
   description: "Remove creditcard from booking",
-  callback: async (manager, ...args) => {
+  callback: async (manager) => {
     // current booking is validated in ./index.ts
 
     if (booking.state.creditCard === undefined) {
@@ -13,9 +13,9 @@ export const removeCommand: ICommand = {
       return;
     }
 
-    if (!args.includes('-f')) {
-      manager.writeLine("Are you sure to delete the credit card?")
-      manager.writeLine("Use 'booking creditcard rm -f' to remove the credit card!")
+    const question = "Are you sure to delete the credit card?";
+    const answer = await manager.runUserQuery(question);
+    if (answer === 'n') {
       manager.writeError("Credit card was not removed!", true)
       return;
     }
@@ -23,7 +23,6 @@ export const removeCommand: ICommand = {
     const card = booking.actions.removeCreditCard();
     manager.writeLine();
     printCreditCard(card, manager);
-    manager.writeError("Credit card removed!", true);
-
+    manager.writeSuccess("Credit card removed!", true)
   },
 };

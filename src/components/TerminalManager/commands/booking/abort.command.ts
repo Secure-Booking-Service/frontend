@@ -5,12 +5,12 @@ import { noCurrentBooking } from './helpers';
 export const abortCommand: ICommand = {
   command: "abort",
   description: "Abort the current booking",
-  callback: async (manager, ...args) => {
+  callback: async (manager) => {
     if (noCurrentBooking()) return;
 
-    if (!args.includes('-f')) {
-      manager.writeLine("Are you sure to cancel to current booking?")
-      manager.writeLine("Use 'booking abort -f' to cancel the current booking!")
+    const question = "Are you sure to cancel to current booking?";
+    const answer = await manager.runUserQuery(question);
+    if (answer === 'n') {
       manager.writeError("Booking was not aborted!", true)
       return;
     }
