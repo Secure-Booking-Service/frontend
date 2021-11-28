@@ -20,28 +20,28 @@ export const checkCommand: ICommand = {
     }
 
     if (booking.state.passengers.length === 0) {
-      manager.writeError("No passengers added! Use 'booking passenger add'", true)
+      manager.writeError("No passengers added! Use 'booking passenger add'", true);
       errors++;
     } else {
-      manager.writeLine("Passenger(s):")
+      manager.writeLine("Passenger(s):");
       booking.state.passengers.forEach((passenger, index) => {
         printPassenger(index, passenger, manager);
       });
     }
 
     const underagedDate = new Date();
-    underagedDate.setFullYear(underagedDate.getFullYear() - 13)
+    underagedDate.setFullYear(underagedDate.getFullYear() - 13);
     const underagedPassengers = booking.state.passengers.filter(passenger => new Date(passenger.dateOfBirth).getTime() > underagedDate.getTime() );
     const fullagedPassengers = booking.state.passengers.filter(passenger => new Date(passenger.dateOfBirth).getTime() <= underagedDate.getTime() );
     
     if (underagedPassengers.length !== 0 && fullagedPassengers.length === 0) {
-      manager.writeError("Full-aged passenger missing! Underaged passenger can not travel alone!", true)
+      manager.writeError("Full-aged passenger missing! Underaged passenger can not travel alone!", true);
       errors++;
     }
     manager.writeLine();
     
     if (booking.state.creditCard === undefined) {
-      manager.writeError("No credit card added! Use 'booking creditcard add'", true)
+      manager.writeError("No credit card added! Use 'booking creditcard add'", true);
       errors++;
     } else {
       manager.writeLine("Credit card:");
@@ -53,7 +53,7 @@ export const checkCommand: ICommand = {
 
     if (errors > 0) {
       manager.writeError("Found " + errors + " errors!", false);
-      manager.writeError("Check failed!", true)
+      manager.writeError("Check failed!", true);
       booking.actions.setValidationStatus(false);
     } else {
       manager.writeSuccess("No errors found!", false);

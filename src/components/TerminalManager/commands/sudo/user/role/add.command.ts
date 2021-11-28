@@ -15,7 +15,7 @@ export const addCommand: ICommand = {
     const [email, role] = args;
 
     if (!isEmail(email)) {
-      manager.writeError("Please enter a valid email address!")
+      manager.writeError("Please enter a valid email address!");
       manager.writeLine();
       errors++;
     }
@@ -34,7 +34,7 @@ export const addCommand: ICommand = {
       const payload = {
         addRoles: [role],
         removeRoles: []
-      }
+      };
 
       const apiReponse = await api.put('/user/' + email, payload);
       

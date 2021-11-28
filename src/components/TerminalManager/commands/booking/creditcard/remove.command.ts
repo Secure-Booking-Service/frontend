@@ -16,13 +16,13 @@ export const removeCommand: ICommand = {
     const question = "Are you sure to delete the credit card?";
     const answer = await manager.runUserQuery(question);
     if (answer === 'n') {
-      manager.writeError("Credit card was not removed!", true)
+      manager.writeError("Credit card was not removed!", true);
       return;
     }
 
     const card = booking.actions.removeCreditCard();
     manager.writeLine();
     printCreditCard(card, manager);
-    manager.writeSuccess("Credit card removed!", true)
+    manager.writeSuccess("Credit card removed!", true);
   },
 };

@@ -15,7 +15,7 @@ export const selectCommand: ICommand = {
 
     if (flights.state.flightOffers.length === 0) {
       manager.writeError("No flight offers for selection found!", true);
-      manager.writeLine("Use 'flight search' to get available flights")
+      manager.writeLine("Use 'flight search' to get available flights");
       return;
     }
 
@@ -34,7 +34,7 @@ export const selectCommand: ICommand = {
     }
 
     // Add flight offer to booking
-    const index = parseInt(flightId) - 1
+    const index = parseInt(flightId) - 1;
     const selectedFlightOffer = flights.state.flightOffers[index];
     const selectedFlightOfferCopy = JSON.parse(JSON.stringify(selectedFlightOffer)) as FlightOffer;
     booking.actions.addFlightOffer(selectedFlightOfferCopy);

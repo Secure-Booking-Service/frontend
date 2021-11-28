@@ -13,7 +13,7 @@ export const removeCommand: ICommand = {
     const [email, role] = args;
 
     if (!isEmail(email)) {
-      manager.writeError("Please enter a valid email address!")
+      manager.writeError("Please enter a valid email address!");
       manager.writeLine();
       errors++;
     }
@@ -32,7 +32,7 @@ export const removeCommand: ICommand = {
       const payload = {
         addRoles: [],
         removeRoles: [role]
-      }
+      };
 
       const apiReponse = await api.put('/user/' + email, payload);
       

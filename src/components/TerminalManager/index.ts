@@ -409,7 +409,7 @@ export class TerminalManager {
   private writeUserInput(text: string): void {
     if (text.length > 1) {
       // Remove beginning or trailing whitespace
-      text = text.trim()
+      text = text.trim();
     }
     // Check for multi-line commands
     if (/\r\n|\r|\n/.test(text)) {
@@ -423,7 +423,7 @@ export class TerminalManager {
     // Filter non printable characters
     text = Array.from(text).filter(char => {
       return (char >= String.fromCharCode(0x20) && char <= String.fromCharCode(0x7d)) || char >= "\u00a0";
-    }).join("")
+    }).join("");
     // Insert char / text at cursor position
     const first = this.currentCommand.slice(0, this.tPosition);
     const last = this.currentCommand.slice(this.tPosition);
@@ -470,7 +470,7 @@ export class TerminalManager {
   public writeError(error: string, icon = false): void {
     const style = c.red.bold;
     if (icon) {
-      this.terminal.writeln(style("✖") + " " + error)
+      this.terminal.writeln(style("✖") + " " + error);
     } else {
       this.terminal.writeln(style(error));
     }
@@ -487,7 +487,7 @@ export class TerminalManager {
   public writeWarning(warning: string, icon = false): void {
     const style = c.yellow.bold;
     if (icon) {
-      this.terminal.writeln(style("⚠") + " " + warning)
+      this.terminal.writeln(style("⚠") + " " + warning);
     } else {
       this.terminal.writeln(style(warning));
     }
@@ -504,7 +504,7 @@ export class TerminalManager {
   public writeSuccess(success: string, icon = false): void {
     const style = c.green.bold;
     if (icon) {
-      this.terminal.writeln(style("✔") + " " + success)
+      this.terminal.writeln(style("✔") + " " + success);
     } else {
       this.terminal.writeln(style(success));
     }
@@ -521,7 +521,7 @@ export class TerminalManager {
   public writeInfo(info: string, icon = false): void {
     const style = c.blueBright.bold;
     if (icon) {
-      this.terminal.writeln(style("ℹ") + " " + info)
+      this.terminal.writeln(style("ℹ") + " " + info);
     } else {
       this.terminal.writeln(style(info));
     }

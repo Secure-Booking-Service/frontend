@@ -11,11 +11,11 @@ export const abortCommand: ICommand = {
     const question = "Are you sure to cancel to current booking?";
     const answer = await manager.runUserQuery(question);
     if (answer === 'n') {
-      manager.writeError("Booking was not aborted!", true)
+      manager.writeError("Booking was not aborted!", true);
       return;
     }
 
     booking.actions.abortBooking();
-    manager.writeSuccess("Booking was aborted!", true)
+    manager.writeSuccess("Booking was aborted!", true);
   },
 };

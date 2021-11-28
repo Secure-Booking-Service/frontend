@@ -12,7 +12,7 @@ import { TerminalManager } from "@/components/TerminalManager";
 export function noCurrentBooking(): boolean {
   const manager = TerminalManager.Instance;
   if (!booking.state.hasBookingStarted) {
-    manager.writeError("No booking found!")
+    manager.writeError("No booking found!");
     manager.writeLine("Use 'booking new' to start a new booking!");
     return true;
   }

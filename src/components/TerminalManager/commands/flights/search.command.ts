@@ -21,17 +21,17 @@ export const searchCommand: ICommand = {
     let hasError = false;
 
     // Check if at least one passenger has been added
-    const adults = booking.state.passengers.length
+    const adults = booking.state.passengers.length;
     if (adults === 0) {
       manager.writeError("No passenger found!", true);
-      manager.writeLine("Please add at least one passenger using 'booking passenger add'")
+      manager.writeLine("Please add at least one passenger using 'booking passenger add'");
       hasError = true;
     }
 
     const [originLocationCode, destinationLocationCode, departureDate] = args;
 
     // Input validation
-    const length = { min: 3, max: 3 }
+    const length = { min: 3, max: 3 };
     if (!isLength(originLocationCode, length) ||
       !isLength(destinationLocationCode, length) ||
       !isUppercase(originLocationCode) ||
@@ -63,9 +63,9 @@ export const searchCommand: ICommand = {
         departureDate,
         adults
       }
-    }
+    };
     try {
-      const apiResponse = await api.get("/flights", requestConfig)
+      const apiResponse = await api.get("/flights", requestConfig);
       if (apiResponse.status !== 200) {
         printApiError(apiResponse);
         return;

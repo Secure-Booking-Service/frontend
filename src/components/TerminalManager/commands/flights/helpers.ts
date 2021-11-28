@@ -8,7 +8,7 @@ import { blue, cyan, red, yellow } from "ansi-colors";
  */
  export async function printFlightOffers(offers: FlightOffer[]): Promise<void> {
   const manager = TerminalManager.Instance;
-  const question = "Next page?"
+  const question = "Next page?";
   manager.writeLine();
   for (let index = 1; index <= offers.length; index++) {
     printFlightOffer(offers[index - 1], index);

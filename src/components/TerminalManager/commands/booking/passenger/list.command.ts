@@ -11,7 +11,7 @@ export function printPassenger(index: number, passenger: Passenger, manager: Ter
     passenger.firstName.toUpperCase(),
     passenger.dateOfBirth,
     passenger.gender.toUpperCase(),
-  ]
+  ];
 
   manager.writeLine(printStatement.join(" "));
 }
@@ -32,6 +32,6 @@ export const listCommand: ICommand = {
 
     booking.state.passengers.forEach((passenger, index) => {
       printPassenger(index + 1, passenger, manager);
-    })
+    });
   },
 };
