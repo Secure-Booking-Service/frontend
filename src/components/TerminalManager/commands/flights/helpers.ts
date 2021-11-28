@@ -6,12 +6,18 @@ import { blue, cyan, red, yellow } from "ansi-colors";
  * Prints the given array of flight offers to the console
  * @param offers Array of flight offers to print
  */
- export function printFlightOffers(offers: FlightOffer[]): void {
+ export async function printFlightOffers(offers: FlightOffer[]): Promise<void> {
   const manager = TerminalManager.Instance;
+  const question = "Next page?"
   manager.writeLine();
-  offers.forEach((offer, index) => {
-    printFlightOffer(offer, index + 1);
-  });
+  for (let index = 1; index <= offers.length; index++) {
+    printFlightOffer(offers[index - 1], index);
+    if (index % 3 === 0) {
+      const answer = await manager.runUserQuery(question);
+      if (answer === 'n') break;
+      manager.writeLine();
+    }
+  }
 }
 
 /**
