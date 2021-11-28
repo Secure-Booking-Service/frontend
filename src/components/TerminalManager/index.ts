@@ -49,7 +49,9 @@ export class TerminalManager {
   /** Locks terminal during command execution */
   private isLocked = false;
   /** Buffer for multi-line commands */
-  private commandBuffer = ""
+  private commandBuffer = "";
+  /** Promise resolve function for transmitting user input during cmd run */
+  private resolveUserQuery: ((value: string | PromiseLike<string>) => void) | undefined;
 
   /**
    * Contructs the main terminal object (singleton contructor)
@@ -286,11 +288,39 @@ export class TerminalManager {
   }
 
   /**
+   * Waits for the user to press a key.
+   * Does *not* work with the 'Enter' key.
+   * @param expectedInput Array of valid input characters
+   * @returns A promise for the first key entered by the user
+   */
+  public async runUserQuery(expectedInput: Array<string>): Promise<string> {
+    // Create promise and activate query
+    let answer: string = await new Promise(resolve => this.resolveUserQuery = resolve);
+    // Check user input
+    while (!expectedInput.includes(answer)) {
+      this.write("Illegal input:    ");
+      this.writeError(answer);
+      this.write("Accepted inputs:  ");
+      this.writeInfo(expectedInput.join(", "));
+      // Create new promise
+      answer = await new Promise(resolve => this.resolveUserQuery = resolve);
+    }
+    // Deactivate query and return answer
+    this.resolveUserQuery = undefined;
+    return Promise.resolve(answer);
+  }
+
+  /**
    * Handles raw keyboard events entered in the terminal.
    * @param event The keyboard event triggered
    * @returns True if the event should be further processed internally by xterm
    */
   private inputPreProcessing(event: KeyboardEvent): boolean {
+    // Check if user query is running
+    if (this.resolveUserQuery !== undefined && event.key !== "Enter" && event.type === "keyup") {
+      this.resolveUserQuery(event.key);
+      return false;
+    }
     // Block input while command is running
     if (this.isLocked) return false;
 
