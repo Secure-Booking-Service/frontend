@@ -203,19 +203,32 @@ export class TerminalManager {
         // Unlock terminal and print prompt
         execution.finally(() => {
           this.isLocked = false;
-          this.printPrompt();
-          // Continue processing if multi-line command entered
-          if (this.commandBuffer !== "") {
-            this.inputProcessing(this.commandBuffer);
-          }
+          this.postCommandProcessing();
         });
       } else {
         this.writeError(`${keyword}: command not found`);
-        this.printPrompt();
+        this.postCommandProcessing();
       }
     } else {
       // Nothing (or whitespace only) entered
-      this.printPrompt();
+      this.postCommandProcessing();
+    }
+  }
+
+  /**
+   * Cleanup and variable reset after a command run.
+   */
+  private postCommandProcessing(): void {
+    // Print a new prompt after each command run (enter key)
+    this.printPrompt();
+    // Update current command history position
+    this.commandHistoryPosition = this.commandHistory.length;
+    // Reset input and cursor variables
+    this.currentCommand = "";
+    this.tPosition = 0;
+    // Continue processing if multi-line command entered
+    if (this.commandBuffer !== "") {
+      this.inputProcessing(this.commandBuffer);
     }
   }
 
@@ -329,9 +342,6 @@ export class TerminalManager {
         // Move cursor to the end of the command
         this.moveCursor(this.currentCommand.length - this.tPosition);
         this.runCommand();
-        this.commandHistoryPosition = this.commandHistory.length;
-        this.currentCommand = "";
-        this.tPosition = 0;
         break;
       case "\u007F": // Backspace (DEL)
         // Do not delete the prompt
@@ -351,17 +361,20 @@ export class TerminalManager {
         }
         break;
       default: {
+        // Remove beginning or trailing whitespace
+        text = text.trim()
         // Check for multi-line commands
         if (/\r\n|\r|\n/.test(text)) {
           const [firstLine, /**newlineChar*/, otherLines] = text.split(/(\r\n|\r|\n)([\s\S]*)/);
           this.commandBuffer = otherLines;
           text = firstLine;
         } else {
+          // No multi-line or last line of multi-line cmd
           this.commandBuffer = "";
         }
         // Filter non printable characters
         text = Array.from(text).filter(char => {
-          return (char >= String.fromCharCode(0x20) && char <= String.fromCharCode(0x7b)) || char >= "\u00a0";
+          return (char >= String.fromCharCode(0x20) && char <= String.fromCharCode(0x7d)) || char >= "\u00a0";
         }).join("")
         // Insert char / text at cursor position
         const first = this.currentCommand.slice(0, this.tPosition);
@@ -379,9 +392,8 @@ export class TerminalManager {
           this.terminal.write(text);
           this.tPosition += text.length;
         }
-        // Run current line of multi-line command
+        // Run current line if multi-line command
         if (this.commandBuffer !== "") {
-          // Simulate enter key
           this.inputProcessing("\r");
         }
       }
