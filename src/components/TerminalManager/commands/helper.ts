@@ -15,7 +15,7 @@ export async function executeSubCommand(registeredCommands: ICommand[], args: st
   
   // Return false if no command or too many commands are available 
   if (exeCommands.length !== 1) {
-    manager.writeError("Unkown operation: " + command.toLocaleLowerCase());
+    manager.writeError("Unknown operation: " + command.toLocaleLowerCase());
     manager.writeLine("Available operations: ");
     displayTableFor(registeredCommands, manager);
     return false
