@@ -290,10 +290,13 @@ export class TerminalManager {
   /**
    * Waits for the user to press a key.
    * Does *not* work with the 'Enter' key.
-   * @param expectedInput Array of valid input characters
+   * @param question The user question for the answer options, eg. 'Continue?'
+   * @param expectedInput Array of valid input chars, defaults to ['y', 'n']
    * @returns A promise for the first key entered by the user
    */
-  public async runUserQuery(expectedInput: Array<string>): Promise<string> {
+  public async runUserQuery(question: string, expectedInput: Array<string> = ['y', 'n']): Promise<string> {
+    // Write question
+    this.writeLine(`${question} (${expectedInput.join("/")})`)
     // Create promise and activate query
     let answer: string = await new Promise(resolve => this.resolveUserQuery = resolve);
     // Check user input
@@ -301,7 +304,7 @@ export class TerminalManager {
       this.write("Illegal input:    ");
       this.writeError(answer);
       this.write("Accepted inputs:  ");
-      this.writeInfo(expectedInput.join(", "));
+      this.writeInfo(expectedInput.join("/"));
       // Create new promise
       answer = await new Promise(resolve => this.resolveUserQuery = resolve);
     }
