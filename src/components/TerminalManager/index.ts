@@ -296,18 +296,19 @@ export class TerminalManager {
    */
   public async runUserQuery(question: string, expectedInput: Array<string> = ['y', 'n']): Promise<string> {
     // Write question
-    this.writeLine(`${question} (${expectedInput.join("/")})`)
+    this.write(`${question} (${expectedInput.join("/")}) `)
     // Create promise and activate query
     let answer: string = await new Promise(resolve => this.resolveUserQuery = resolve);
     // Check user input
     while (!expectedInput.includes(answer)) {
-      this.write("Illegal input:    ");
+      this.write("\r\nIllegal input: ");
       this.writeError(answer);
-      this.write("Accepted inputs:  ");
-      this.writeInfo(expectedInput.join("/"));
+      this.write(`${question} (${expectedInput.join("/")}) `)
       // Create new promise
       answer = await new Promise(resolve => this.resolveUserQuery = resolve);
     }
+    // Write answer
+    this.writeLine(answer);
     // Deactivate query and return answer
     this.resolveUserQuery = undefined;
     return Promise.resolve(answer);
