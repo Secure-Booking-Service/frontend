@@ -10,6 +10,7 @@ import isUppercase from 'validator/lib/isUppercase';
 import isLength from 'validator/lib/isLength';
 import { flights } from "@/overmind/flights";
 import { printFlightOffers } from "./helpers";
+import { blue } from "ansi-colors";
 
 export const searchCommand: ICommand = {
   command: "search",
@@ -71,7 +72,7 @@ export const searchCommand: ICommand = {
       }
       const flightOffers = apiResponse.data.data;
       if (flightOffers.length > 0) {
-        manager.writeSuccess(`Found ${flightOffers.length} flights`, true);
+        manager.writeSuccess(`Found ${blue.bold(flightOffers.length)} flights`, true);
         await printFlightOffers(flightOffers);
       } else {
         manager.writeError(`No flights found!`, true);
