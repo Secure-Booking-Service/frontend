@@ -12,7 +12,7 @@ export const closeCommand: ICommand = {
     if (noCurrentBooking()) return;
 
     if (!booking.state.wasSuccessfullyValidated) {
-      manager.writeError("Booking not reviewed! Use 'booking check' to review booking.")
+      manager.writeError("Booking not reviewed! Use 'booking check' to review booking.");
       manager.writeLine();
       return;
     }
@@ -25,7 +25,7 @@ export const closeCommand: ICommand = {
         // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
         flightOffer: booking.state.flightOffer!,
         passengers: booking.state.passengers,
-      }
+      };
 
       const apiReponse = await api.post('/bookings', payload);
       
