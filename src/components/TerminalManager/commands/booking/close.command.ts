@@ -27,10 +27,11 @@ export const closeCommand: ICommand = {
         passengers: booking.state.passengers,
       }
 
-      const apiReponse = await api.put('/bookings', payload);
+      const apiReponse = await api.post('/bookings', payload);
       
       if (apiReponse.status !== 200) throw printApiError(apiReponse);
-      
+
+      booking.actions.abortBooking();      
       manager.writeSuccess("Booking closed successfully!", true);
     } catch (error: unknown) {
       if (error !== undefined && error instanceof Error) {
