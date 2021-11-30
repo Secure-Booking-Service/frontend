@@ -29,7 +29,7 @@ export const checkCommand: ICommand = {
     } else {
       manager.writeLine("Passenger(s):");
       booking.state.passengers.forEach((passenger, index) => {
-        printPassenger(index, passenger, manager);
+        printPassenger(index + 1, passenger, manager);
       });
     }
 
