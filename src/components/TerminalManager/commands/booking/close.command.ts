@@ -7,7 +7,7 @@ import { yellow } from 'ansi-colors';
 
 export const closeCommand: ICommand = {
   command: "close",
-  description: "Send the booking to GDS",
+  description: "Submit booking",
   usage: [],
   callback: async (manager) => {
     if (noCurrentBooking()) return;
