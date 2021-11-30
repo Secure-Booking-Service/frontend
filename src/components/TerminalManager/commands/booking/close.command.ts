@@ -20,10 +20,8 @@ export const closeCommand: ICommand = {
 
     try {
       const payload = {
-        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-        creditCard: booking.state.creditCard!,
-        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-        flightOffer: booking.state.flightOffer!,
+        creditCard: booking.state.creditCard,
+        flightOffer: booking.state.flightOffer,
         passengers: booking.state.passengers,
       };
 
