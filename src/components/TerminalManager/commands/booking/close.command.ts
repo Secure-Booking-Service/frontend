@@ -3,6 +3,7 @@ import { booking } from "@/overmind/booking";
 import { api } from "@/store/utils/ApiUtil";
 import { printApiError } from "../helper";
 import { noCurrentBooking } from "./helpers";
+import { yellow } from 'ansi-colors';
 
 export const closeCommand: ICommand = {
   command: "close",
@@ -18,7 +19,6 @@ export const closeCommand: ICommand = {
     }
 
     try {
-
       const payload = {
         // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
         creditCard: booking.state.creditCard!,
@@ -32,7 +32,7 @@ export const closeCommand: ICommand = {
       if (apiReponse.status !== 200) throw printApiError(apiReponse);
 
       booking.actions.abortBooking();      
-      manager.writeSuccess("Booking closed successfully!", true);
+      manager.writeSuccess("Booking successfully closed and available as " + yellow.bold(apiReponse.data.data) + "!", true);
     } catch (error: unknown) {
       if (error !== undefined && error instanceof Error) {
         manager.writeError(error.message);
