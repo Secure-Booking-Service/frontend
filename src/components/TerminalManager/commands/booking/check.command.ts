@@ -49,8 +49,7 @@ export const checkCommand: ICommand = {
       errors++;
     } else {
       manager.writeLine("Credit card:");
-      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-      printCreditCard(booking.state.creditCard!, manager);
+      printCreditCard(booking.state.creditCard, manager);
     }
 
     manager.writeLine();
