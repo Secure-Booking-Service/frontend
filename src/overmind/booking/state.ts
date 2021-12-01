@@ -1,6 +1,6 @@
-import { Booking, Passenger } from "@secure-booking-service/common-types";
+import { BookingDraft, Passenger } from "@secure-booking-service/common-types";
 
-export interface State extends Partial<Booking> {
+export interface State extends Partial<BookingDraft> {
   passengers: Passenger[],
   wasSuccessfullyValidated: boolean,
   hasBookingStarted: boolean
