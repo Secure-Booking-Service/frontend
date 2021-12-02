@@ -10,6 +10,7 @@ import { passengerCommand } from "./passenger";
 export const bookingCommand: ICommand = {
   command: "booking",
   description: "Manage the current booking",
+  loginRequired: true,
   callback: async (manager, ...args) => {
     const usage = "Usage: booking OPERATION";
     const registeredCommands = [ newCommand, passengerCommand, creditcardCommand, closeCommand, checkCommand, abortCommand];

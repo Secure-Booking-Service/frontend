@@ -70,8 +70,8 @@ export function printApiError(apiResponse: AxiosResponse): void {
   const errors = apiResponse.data.error;
   if (errors instanceof Array && errors.length !== 0) {
     if (errors[0].message === "jwt expired") {
-      //store.dispatch("logout");
-      //user.actions.isLoggedOut();
+      store.dispatch("logout");
+      user.actions.isLoggedOut();
       manager.writeLine("Your session has expired, please log in again!");
     }
     else {

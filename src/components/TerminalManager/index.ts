@@ -14,6 +14,7 @@ import {
   bookingCommand,
   flightCommand,
 } from "./commands";
+import { user } from "@/overmind/user";
 
 /**
  * Object schema for registering a new command.
@@ -26,6 +27,7 @@ export interface ICommand {
   description: string;
   hidden?: boolean;
   usage?: string[];
+  loginRequired?: boolean;
   callback: (terminalMgr: TerminalManager, ...args: string[]) => Promise<string | void>;
 }
 
@@ -195,11 +197,20 @@ export class TerminalManager {
       this.terminal.writeln(""); // Newline for command output
       const foundCommand = this.registeredCommands.filter((cmd) => cmd.command === keyword);
       if (foundCommand.length === 1) {
+        const command = foundCommand[0];
+
+        // Check if command requires log in
+        if (!user.state.isLoggedIn && command.loginRequired) {
+          this.writeError("You need to be logged in to use this command!");
+          this.postCommandProcessing();
+          return;
+        }
+
         // Lock terminal during command execution
         this.isLocked = true;
 
         // Call command action
-        const execution = foundCommand[0].callback(this, ...args);
+        const execution = command.callback(this, ...args);
         execution.then((answer) => this.terminal.write(answer || ""));
 
         // Unlock terminal and print prompt

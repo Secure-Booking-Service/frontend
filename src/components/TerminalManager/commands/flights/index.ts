@@ -6,6 +6,7 @@ import { searchCommand } from "./search.command";
 export const flightCommand: ICommand = {
   command: "flight",
   description: "Search or select a flight",
+  loginRequired: true,
   callback: async (manager, ...args) => {
     const usage = "Usage: flight OPERATION";
     const registeredCommands = [ selectCommand, searchCommand ];
