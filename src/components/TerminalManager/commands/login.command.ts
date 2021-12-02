@@ -3,6 +3,7 @@ import isEmail from "validator/lib/isEmail";
 import store from "../../../store";
 import { startAuthentication } from "@simplewebauthn/browser";
 import { apiErrorHandler } from "../apierrorhandler";
+import { user } from "@/overmind/user";
 
 export const loginCommand: ICommand = {
   command: "login",
@@ -38,6 +39,7 @@ export const loginCommand: ICommand = {
       });
 
       // 4. Logged in successful!
+      user.actions.isLoggedIn(email);
       return manager.writeLine(`Successfully logged in as ${email}!`);
     } catch (error: unknown) {
       if (error instanceof Error && error.name == "AbortError") {
