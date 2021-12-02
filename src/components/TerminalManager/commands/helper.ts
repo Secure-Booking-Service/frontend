@@ -1,6 +1,8 @@
 import { AxiosResponse } from "axios";
 import { ICommand, TerminalManager } from "@/components/TerminalManager";
 import { displayTableFor } from "./help.command";
+import store from "@/store";
+import { user } from "@/overmind/user";
 
 export function shift(args: string[]): string[] {
   args.shift();
@@ -9,10 +11,10 @@ export function shift(args: string[]): string[] {
 
 export async function executeSubCommand(registeredCommands: ICommand[], args: string[]): Promise<boolean> {
   const manager = TerminalManager.Instance;
-  const [ command ] = args;
+  const [command] = args;
   const shiftedArgs = shift(args);
   const exeCommands = registeredCommands.filter((item) => item.command === command.toLocaleLowerCase());
-  
+
   // Return false if no command or too many commands are available 
   if (exeCommands.length !== 1) {
     manager.writeError("Unknown operation: " + command.toLocaleLowerCase());
@@ -21,7 +23,7 @@ export async function executeSubCommand(registeredCommands: ICommand[], args: st
     return false;
   }
 
-  const [ execCommand ] = exeCommands;
+  const [execCommand] = exeCommands;
 
   // Validate length of arguments
   if (validateArguments(shiftedArgs, execCommand)) return false;
@@ -48,7 +50,7 @@ export function validateArguments(args: string[], command: ICommand): boolean {
   const expected: number = command.usage.length;
   const usage: string = "Usage: [...] " + command.command + " " + command.usage.map(i => i.toUpperCase()).join(" ");
   const manager = TerminalManager.Instance;
-  
+
   if (args.length !== expected) {
     manager.writeError("Wrong number of arguments! Expected " + expected + " but got " + args.length);
     manager.writeLine(usage);
@@ -67,9 +69,16 @@ export function printApiError(apiResponse: AxiosResponse): void {
   manager.writeError("Error: " + apiResponse.statusText);
   const errors = apiResponse.data.error;
   if (errors instanceof Array && errors.length !== 0) {
+    if (errors[0].message === "jwt expired") {
+      //store.dispatch("logout");
+      //user.actions.isLoggedOut();
+      manager.writeLine("Your session has expired, please log in again!");
+    }
+    else {
       manager.writeError("Details:");
       errors.forEach((err: any) => {
-          manager.writeError("- " + err.message);
+        manager.writeError("- " + err.message);
       });
+    }
   }
 }
