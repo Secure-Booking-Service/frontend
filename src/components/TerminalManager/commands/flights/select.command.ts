@@ -41,6 +41,7 @@ export const selectCommand: ICommand = {
 
     // Print confirmation
     printFlightOffer(selectedFlightOffer, index + 1);
+    manager.writeLine();
     manager.writeSuccess("The above flight order has been selected", true);
 
   },

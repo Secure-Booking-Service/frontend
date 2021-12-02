@@ -21,6 +21,7 @@ export const checkCommand: ICommand = {
     } else {
       manager.writeLine("Flight offer:");
       printFlightOffer(booking.state.flightOffer);
+      manager.writeLine();
     }
 
     if (booking.state.passengers.length === 0) {
