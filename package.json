@@ -15,6 +15,7 @@
     "ansi-escapes": "^5.0.0",
     "axios": "^0.24.0",
     "core-js": "^3.6.5",
+    "jwt-decode": "^3.1.2",
     "overmind": "^28.0.1",
     "table": "^6.7.3",
     "validator": "^13.7.0",

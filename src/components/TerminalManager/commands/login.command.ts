@@ -39,7 +39,7 @@ export const loginCommand: ICommand = {
       });
 
       // 4. Logged in successful!
-      user.actions.isLoggedIn(email);
+      user.actions.isLoggedIn(sessionStorage.getItem("token"));
       return manager.writeLine(`Successfully logged in as ${email}!`);
     } catch (error: unknown) {
       if (error instanceof Error && error.name == "AbortError") {
