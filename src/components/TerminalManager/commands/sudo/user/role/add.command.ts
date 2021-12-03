@@ -3,6 +3,7 @@ import { Roles } from "@secure-booking-service/common-types/Roles";
 import { api } from "@/store/utils/ApiUtil";
 import isEmail from "validator/lib/isEmail";
 import isIn from "validator/lib/isIn";
+import { apiErrorHandler } from "@/components/TerminalManager/apierrorhandler";
 
 export const addCommand: ICommand = {
   command: "add",
@@ -23,7 +24,7 @@ export const addCommand: ICommand = {
     if (!isIn(role, Object.values(Roles))) {
       manager.writeError("Unknown Role!");
       manager.writeLine("Allowed Roles:");
-      Object.values(Roles).forEach(role => manager.writeLine(" - " + role));
+      Object.values(Roles).forEach(allowedRole => manager.writeLine(" - " + allowedRole));
       manager.writeLine();
       errors++;
     }
@@ -38,15 +39,11 @@ export const addCommand: ICommand = {
 
       const apiReponse = await api.put('/user/' + email, payload);
       
-      if (apiReponse.status !== 200) {
-        // TODO: Refactor after Antons PR
-        manager.writeError("Fail: " + apiReponse.statusText);
-        manager.writeLine("Response from server: " + apiReponse.data.error[0].message);
-        manager.writeLine();
-        throw undefined;
-      }
+      if (apiReponse.status !== 200) throw apiErrorHandler(manager, apiReponse.data.error);
       
       manager.writeSuccess("User updated successfully!", true);
+      manager.writeInfo("Changes will be applied at the next user login.", true);
+
     } catch (error: unknown) {
       if (error !== undefined && error instanceof Error) {
         manager.writeError(error.message);

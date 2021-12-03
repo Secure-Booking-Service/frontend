@@ -40,6 +40,7 @@ export const removeCommand: ICommand = {
       if (apiReponse.status !== 200) throw apiErrorHandler(manager, apiReponse.data.error);
       
       manager.writeSuccess("User updated successfully!", true);
+      manager.writeInfo("Changes will be applied at the next user login.", true);
     } catch (error: unknown) {
       if (error !== undefined && error instanceof Error) {
         manager.writeError(error.message);
