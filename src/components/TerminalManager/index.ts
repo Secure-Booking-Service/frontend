@@ -171,9 +171,12 @@ export class TerminalManager {
     this.terminal.attachCustomKeyEventHandler(this.inputPreProcessing.bind(this));
     // Add key / paste event handler
     this.terminal.onData(this.inputProcessing.bind(this));
+    // Set prompt
+    if (user.state.isLoggedIn)
+      this.Prompt = `${c.green.bold(user.state.email)} $ `;
     // Print welcome message
-    this.terminal.writeln(`Welcome to the ${c.blue.bold("Secure Booking Service")}!`);
-    this.terminal.writeln(`Type ${c.yellow.bold("help")} for a list of available commands.`);
+    this.writeLine(`Welcome to the ${c.blue.bold("Secure Booking Service")}!`);
+    this.writeLine(`Type ${c.yellow.bold("help")} for a list of available commands.`);
     this.printPrompt();
     // Register basic commands
     this.registerCommand(helpCommand);

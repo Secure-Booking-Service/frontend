@@ -2,7 +2,6 @@ import { Context } from './config';
 import jwt_decode from "jwt-decode";
 import { Roles } from '@secure-booking-service/common-types/Roles';
 
-
 export function isLoggedIn({ state, actions }: Context, token: string | null): void {
   if (token) {
     const { data: { email: userEmail, roles: userRoles } } = jwt_decode(token) as any;
