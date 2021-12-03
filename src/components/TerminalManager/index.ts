@@ -390,7 +390,7 @@ export class TerminalManager {
         this.moveCursor(this.currentCommand.length - this.tPosition);
         this.runCommand();
         break;
-      case "\u007F": // Backspace (DEL)
+      case "\u007F": // Backspace
         // Do not delete the prompt
         if (this.tPosition > 0) {
           // Cut char at cursor position
@@ -402,6 +402,20 @@ export class TerminalManager {
           // overwrite old last char with a space and then move the cursor
           // back to the cut position
           this.moveCursor(-1);
+          this.terminal.write(ansiEscapes.cursorSavePosition);
+          this.terminal.write(last + " ");
+          this.terminal.write(ansiEscapes.cursorRestorePosition);
+        }
+        break;
+      case "\u001b[3~": // Delete (DEL)
+        // Delete only if cursor not at the end of command
+        if (this.tPosition < this.currentCommand.length) {
+          // Cut char at cursor position
+          const first = this.currentCommand.slice(0, this.tPosition);
+          const last = this.currentCommand.slice(this.tPosition + 1);
+          this.currentCommand = first + last;
+          // Save cursor position, write remaining string again and
+          // overwrite old last char with a space
           this.terminal.write(ansiEscapes.cursorSavePosition);
           this.terminal.write(last + " ");
           this.terminal.write(ansiEscapes.cursorRestorePosition);
