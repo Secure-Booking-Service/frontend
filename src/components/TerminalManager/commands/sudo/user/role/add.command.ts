@@ -41,8 +41,8 @@ export const addCommand: ICommand = {
       
       if (apiReponse.status !== 200) throw apiErrorHandler(manager, apiReponse.data.error);
       
+      manager.writeInfo("All changes will be applied at the next user login.", true);
       manager.writeSuccess("User updated successfully!", true);
-      manager.writeInfo("Changes will be applied at the next user login.", true);
 
     } catch (error: unknown) {
       if (error !== undefined && error instanceof Error) {
