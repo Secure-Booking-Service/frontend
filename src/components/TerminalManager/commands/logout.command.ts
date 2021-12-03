@@ -9,7 +9,7 @@ export const logoutCommand: ICommand = {
     try {
       await store.dispatch("logout");
       user.actions.isLoggedOut();
-      manager.writeLine("Logged out successfully! Have a nice day!");
+      manager.writeSuccess("Logged out successfully! Have a nice day!", true);
     } catch {
       manager.writeError("You are not logged in!");
     }

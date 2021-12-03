@@ -40,7 +40,7 @@ export const loginCommand: ICommand = {
 
       // 4. Logged in successful!
       user.actions.isLoggedIn(sessionStorage.getItem("token"));
-      return manager.writeLine(`Successfully logged in as ${email}!`);
+      return manager.writeSuccess(`Successfully logged in as ${email}!`, true);
     } catch (error: unknown) {
       if (error instanceof Error && error.name == "AbortError") {
         return manager.writeError("Login aborted!");
