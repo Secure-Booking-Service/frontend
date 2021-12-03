@@ -163,6 +163,10 @@ export class TerminalManager {
     fitAddon.fit();
     // Fit terminal on window resize
     window.onresize = () => { fitAddon.fit(); };
+    // Prevent ctrl + shift + c developer shortcut
+    window.addEventListener('keydown', event => {
+      if (event.ctrlKey && event.shiftKey && event.code === "KeyC") event.preventDefault();
+    });
     // Add raw keyboard event handler
     this.terminal.attachCustomKeyEventHandler(this.inputPreProcessing.bind(this));
     // Add key / paste event handler
@@ -340,6 +344,13 @@ export class TerminalManager {
 
     // Prevent terminal handling of ctrl + v
     if (event.code === "KeyV" && event.ctrlKey) {
+      return false;
+    }
+
+    // Use ctrl + shift + c to copy selected text
+    if (event.ctrlKey && event.shiftKey && event.code === "KeyC" && event.type === "keydown") {
+      const selection = this.terminal.getSelection();
+      navigator.clipboard.writeText(selection);
       return false;
     }
 
