@@ -1,4 +1,5 @@
 import { CreditCard, FlightOffer, Passenger } from '@secure-booking-service/common-types';
+import { flights } from '../flights';
 import { Context } from './config';
 
 export function newBooking({ state }: Context): void {
@@ -25,6 +26,8 @@ export function resetValidationStatus({ state }: Context): void {
 export function addPassenger({ state, actions }: Context, passenger: Passenger): number {
   const index = state.passengers.push(passenger);
   actions.resetValidationStatus();
+  flights.actions.clearFlightOffers();
+  state.flightOffer = undefined;
   return index;
 }
 

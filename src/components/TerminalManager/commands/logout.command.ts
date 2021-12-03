@@ -1,3 +1,4 @@
+import { user } from "@/overmind/user";
 import store from "@/store";
 import { ICommand } from "..";
 
@@ -7,7 +8,9 @@ export const logoutCommand: ICommand = {
   callback: async (manager) => {
     try {
       await store.dispatch("logout");
-      manager.writeLine("Logged out successfully! Have a nice day!");
+      user.actions.isLoggedOut();
+      manager.Prompt = `$ `;
+      manager.writeSuccess("Logged out successfully! Have a nice day!", true);
     } catch {
       manager.writeError("You are not logged in!");
     }

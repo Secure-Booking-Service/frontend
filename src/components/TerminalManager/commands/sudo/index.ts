@@ -6,6 +6,7 @@ import { userCommand } from "./user";
 export const sudoCommand: ICommand = {
   command: "sudo",
   description: "With great power comes great responsibility!",
+  loginRequired: true,
   callback: async (manager, ...args) => {
     const usage = "Usage: sudo OPERATION";
     const registeredCommands = [ powerCommand, userCommand ];
