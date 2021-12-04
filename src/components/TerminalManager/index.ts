@@ -105,6 +105,21 @@ export class TerminalManager {
   }
 
   /**
+   * Prints a logout message (session expired) with respect to current input
+   */
+  public printLogoutMessage(): void {
+    this.writeLine();
+    this.writeInfo("Your session has expired, please log in again!", true);
+    // Save and restore user input after printing the prompt (if no query is running)
+    if (this.resolveUserQuery === undefined){
+      const currentInput = this.currentCommand;
+      this.printPrompt();
+      this.write(currentInput);
+      this.currentCommand = currentInput;
+    }
+  }
+
+  /**
    * Setter
    * @param prompt The new prompt to use. Can include newlines
    */

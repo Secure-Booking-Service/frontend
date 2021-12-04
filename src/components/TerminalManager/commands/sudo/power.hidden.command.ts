@@ -19,6 +19,6 @@ export const powerCommand: ICommand = {
       c.blue("r") +
       c.red("s");
     terminalMgr.writeLine(`Some ${c.bold(superpowers)} for you!`);
-    terminalMgr.Prompt = c.bold.green("root@sbs # ");
+    terminalMgr.Prompt = c.bold.green("root@sbs") + c.red.bold(" # ");
   },
 };

@@ -4,7 +4,6 @@ import store from "../../../store";
 import { startAuthentication } from "@simplewebauthn/browser";
 import { apiErrorHandler } from "../apierrorhandler";
 import { user } from "@/overmind/user";
-import { green } from "ansi-colors";
 
 export const loginCommand: ICommand = {
   command: "login",
@@ -41,7 +40,6 @@ export const loginCommand: ICommand = {
 
       // 4. Logged in successful!
       user.actions.isLoggedIn(sessionStorage.getItem("token"));
-      manager.Prompt = `${green.bold(email)} $ `;
       return manager.writeSuccess(`Successfully logged in as ${email}!`, true);
     } catch (error: unknown) {
       if (error instanceof Error && error.name == "AbortError") {
