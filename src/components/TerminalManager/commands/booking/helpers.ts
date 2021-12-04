@@ -47,9 +47,8 @@ export async function printBookings(bookings: Booking[]): Promise<void> {
 }
 
 /**
- * Prints the given bookings to the console
+ * Prints the given booking to the console
  * @param booking Booking to print
- * @param index The flight number to print
  */
 export function printBooking(booking: Booking): void {
   const manager = TerminalManager.Instance;
