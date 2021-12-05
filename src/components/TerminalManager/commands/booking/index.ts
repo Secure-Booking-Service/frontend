@@ -4,6 +4,7 @@ import { abortCommand } from "./abort.command";
 import { checkCommand } from "./check.command";
 import { closeCommand } from "./close.command";
 import { creditcardCommand } from "./creditcard";
+import { listCommand } from "./list.command";
 import { newCommand } from "./new.command";
 import { passengerCommand } from "./passenger";
 
@@ -13,8 +14,16 @@ export const bookingCommand: ICommand = {
   loginRequired: true,
   callback: async (manager, ...args) => {
     const usage = "Usage: booking OPERATION";
-    const registeredCommands = [ newCommand, passengerCommand, creditcardCommand, closeCommand, checkCommand, abortCommand];
-    
+    const registeredCommands = [
+      newCommand,
+      passengerCommand,
+      creditcardCommand,
+      closeCommand,
+      checkCommand,
+      abortCommand,
+      listCommand
+    ];
+
     if (args.length === 0) {
       manager.writeError("Missing operation!");
       return manager.writeLine(usage);
