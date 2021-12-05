@@ -7,6 +7,7 @@ import { creditcardCommand } from "./creditcard";
 import { listCommand } from "./list.command";
 import { newCommand } from "./new.command";
 import { passengerCommand } from "./passenger";
+import { removeCommand } from "./remove.command";
 
 export const bookingCommand: ICommand = {
   command: "booking",
@@ -21,7 +22,8 @@ export const bookingCommand: ICommand = {
       closeCommand,
       checkCommand,
       abortCommand,
-      listCommand
+      listCommand,
+      removeCommand
     ];
 
     if (args.length === 0) {
