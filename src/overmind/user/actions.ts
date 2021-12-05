@@ -38,9 +38,11 @@ export function updateDataFromToken({ state, actions }: Context, token: string):
   state.email = userEmail;
   state.roles = userRoles as Roles[];
 
-  // Create new logout timer (clear old one if existing)
+  // Clear old logout timer if existing
   if (state.sessionLogoutTimerId)
     clearTimeout(state.sessionLogoutTimerId);
+
+  // Create new logout timer
   state.sessionLogoutTimerId = setTimeout(() => {
     store.dispatch("logout");
     actions.isLoggedOut();
