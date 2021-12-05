@@ -9,9 +9,7 @@ export const removeCommand: ICommand = {
   command: "rm",
   description: "Delete a booking",
   usage: ["BOOKING-ID"],
-  callback: async (manager, ...args) => {
-    const bookingId = args[0];
-
+  callback: async (manager, bookingId) => {
     // Check if user has enough permissions
     if (!user.state.roles.includes(Roles.TRAVELLEAD))
       return manager.writeError("Unauthorized: You dont have the permission to delete bookings!");
@@ -24,10 +22,8 @@ export const removeCommand: ICommand = {
     // Delete booking
     try {
       const apiResponse = await api.delete(`/bookings/${bookingId}`);
-      if (apiResponse.status !== 204) {
-        printApiError(apiResponse);
-        return;
-      }
+      if (apiResponse.status !== 204) throw printApiError(apiResponse);
+
       manager.writeSuccess(`Booking ${yellow.bold(bookingId)} successfully deleted!`, true);
     }
     catch (error: unknown) {
@@ -36,6 +32,7 @@ export const removeCommand: ICommand = {
         manager.writeLine();
         console.error(error);
       }
+      manager.writeError("Booking was not deleted!", true);
     }
   },
 };
