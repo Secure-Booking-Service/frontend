@@ -15,6 +15,7 @@ import {
   flightCommand,
 } from "./commands";
 import { user } from "@/overmind/user";
+import { validateArguments } from "./commands/helper";
 
 /**
  * Object schema for registering a new command.
@@ -186,13 +187,10 @@ export class TerminalManager {
     this.terminal.attachCustomKeyEventHandler(this.inputPreProcessing.bind(this));
     // Add key / paste event handler
     this.terminal.onData(this.inputProcessing.bind(this));
-    // Set prompt
-    if (user.state.isLoggedIn)
-      this.Prompt = `${c.green.bold(user.state.email)} $ `;
     // Print welcome message
     this.writeLine(`Welcome to the ${c.blue.bold("Secure Booking Service")}!`);
     this.writeLine(`Type ${c.yellow.bold("help")} for a list of available commands.`);
-    this.printPrompt();
+    
     // Register basic commands
     this.registerCommand(helpCommand);
     this.registerCommand(manCommand);
@@ -206,6 +204,10 @@ export class TerminalManager {
     this.registerCommand(bookingCommand);
     this.registerCommand(sudoCommand);
     this.registerCommand(flightCommand);
+
+    // Set prompt
+    this.Prompt = `$ `;
+    user.actions.initialize().finally(() => this.printPrompt());
   }
 
   /**
@@ -219,7 +221,7 @@ export class TerminalManager {
       this.terminal.writeln(""); // Newline for command output
       const foundCommand = this.registeredCommands.filter((cmd) => cmd.command === keyword);
       if (foundCommand.length === 1) {
-        const command = foundCommand[0];
+        const [command] = foundCommand;
 
         // Check if command requires log in
         if (!user.state.isLoggedIn && command.loginRequired) {
@@ -227,6 +229,9 @@ export class TerminalManager {
           this.postCommandProcessing();
           return;
         }
+
+        // Check arguments
+        if (validateArguments(args, command)) return this.postCommandProcessing();
 
         // Lock terminal during command execution
         this.isLocked = true;
