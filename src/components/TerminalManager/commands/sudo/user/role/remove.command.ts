@@ -1,6 +1,6 @@
 import { ICommand } from "@/components/TerminalManager";
 import { Roles } from "@secure-booking-service/common-types/Roles";
-import { api } from "@/store/utils/ApiUtil";
+import { api } from "@/components/utils/ApiUtil";
 import isEmail from "validator/lib/isEmail";
 import isIn from "validator/lib/isIn";
 import { apiErrorHandler } from "@/components/TerminalManager/apierrorhandler";

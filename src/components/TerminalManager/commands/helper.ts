@@ -1,7 +1,6 @@
 import { AxiosResponse } from "axios";
 import { ICommand, TerminalManager } from "@/components/TerminalManager";
 import { displayTableFor } from "./help.command";
-import store from "@/store";
 import { user } from "@/overmind/user";
 
 export function shift(args: string[]): string[] {
@@ -70,8 +69,7 @@ export function printApiError(apiResponse: AxiosResponse): void {
   const errors = apiResponse.data.error;
   if (errors instanceof Array && errors.length !== 0) {
     if (errors[0].message === "jwt expired") {
-      store.dispatch("logout");
-      user.actions.isLoggedOut();
+      user.actions.setIsLoggedIn();
       manager.writeLine("Your session has expired, please log in again!");
     }
     else {
