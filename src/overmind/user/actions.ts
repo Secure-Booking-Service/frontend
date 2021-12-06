@@ -1,58 +1,61 @@
 import { Context } from './config';
-import jwt_decode from "jwt-decode";
 import { Roles } from '@secure-booking-service/common-types/Roles';
 import { TerminalManager } from '@/components/TerminalManager';
 import { green } from 'ansi-colors';
-import store from '@/store';
+import { api } from '@/components/utils/ApiUtil';
+import { booking } from '../booking';
 
-export function isLoggedIn({ state, actions }: Context, token: string | null): void {
-  if (token) {
-    actions.updateDataFromToken(token);
-    TerminalManager.Instance.Prompt = `${green.bold(state.email)} $ `;
-  }
-  else {
-    actions.isLoggedOut();
-  }
+/**
+ * If the data object is defined, it sets the user as logged in.
+ *
+ * @export
+ * @param {Context} { state, actions } handled by overmind
+ * @param {{ email: string, roles: Roles[], expiresIn: number }} data object from API
+ */
+export function setIsLoggedIn({ state, actions }: Context, data?: { email: string, roles: Roles[], expiresIn: number }): void {
+  if (data === undefined || data.email === undefined) return actions.clear();
+  state.isLoggedIn = true;
+  actions.prepareUser(data);
+  TerminalManager.Instance.Prompt = `${green.bold(state.email)} $ `;
 }
 
-export function isLoggedOut({ state }: Context): void {
+/**
+ * Clears the state and resets every attribute
+ */
+export function clear({ state }: Context): void {
   state.isLoggedIn = false;
   state.email = "";
   state.roles = [];
-  state.sessionLifetime = 0;
   TerminalManager.Instance.Prompt = `$ `;
   if (state.sessionLogoutTimerId) {
     clearTimeout(state.sessionLogoutTimerId);
     state.sessionLogoutTimerId = null;
   }
+
+  booking.actions.abortBooking();
 }
 
-export function updateDataFromToken({ state, actions }: Context, token: string): void {
-  // Get data from jwt token
-  const { data: { email: userEmail, roles: userRoles }, exp: expiration } = jwt_decode(token) as any;
-
+export function prepareUser({ state, actions }: Context,  data: { email: string, roles: Roles[], expiresIn: number }): void {
   // Save data
-  const sessionLifetime = expiration * 1000 - Date.now();
-  state.isLoggedIn = true;
-  state.sessionLifetime = sessionLifetime > 0 ? sessionLifetime : 0;
-  state.email = userEmail;
-  state.roles = userRoles as Roles[];
+  state.email = data.email;
+  state.roles = data.roles;
 
   // Clear old logout timer if existing
-  if (state.sessionLogoutTimerId)
-    clearTimeout(state.sessionLogoutTimerId);
+  if (state.sessionLogoutTimerId) clearTimeout(state.sessionLogoutTimerId);
 
   // Create new logout timer
   state.sessionLogoutTimerId = setTimeout(() => {
-    store.dispatch("logout");
-    actions.isLoggedOut();
+    actions.clear();
     TerminalManager.Instance.printLogoutMessage();
-  }, sessionLifetime);
+  }, data.expiresIn);
 }
 
-// Why doesn't it work the normal way via initialState?! :-(
-export const onInitializeOvermind = ({ actions }: Context): void => {
-  const token = sessionStorage.getItem('token');
-  if (token !== null)
-    actions.updateDataFromToken(token);
-};
+export async function initialize({ actions }: Context): Promise<void> {
+  try {
+    const apiReponse = await api.get("/authentication/verify");
+    if (apiReponse.status !== 200) return;
+    actions.setIsLoggedIn(apiReponse.data.data);
+  } catch (error: unknown) {
+    return;
+  }
+}
