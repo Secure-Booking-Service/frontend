@@ -31,8 +31,6 @@ export function clear({ state }: Context): void {
     clearTimeout(state.sessionLogoutTimerId);
     state.sessionLogoutTimerId = null;
   }
-
-  booking.actions.abortBooking();
 }
 
 export function prepareUser({ state, actions }: Context,  data: { email: string, roles: Roles[], expiresIn: number }): void {
@@ -53,7 +51,7 @@ export function prepareUser({ state, actions }: Context,  data: { email: string,
 export async function initialize({ actions }: Context): Promise<void> {
   try {
     const apiReponse = await api.get("/authentication/verify");
-    if (apiReponse.status !== 200) return;
+    if (apiReponse.status !== 200) return booking.actions.abortBooking();
     actions.setIsLoggedIn(apiReponse.data.data);
   } catch (error: unknown) {
     return;

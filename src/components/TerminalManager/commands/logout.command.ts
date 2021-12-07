@@ -3,6 +3,7 @@ import { api } from "@/components/utils/ApiUtil";
 import { ICommand } from "..";
 import { apiErrorHandler } from "../apierrorhandler";
 import { printApiError } from "./helper";
+import { booking } from "@/overmind/booking";
 
 export const logoutCommand: ICommand = {
   command: "logout",
@@ -16,7 +17,8 @@ export const logoutCommand: ICommand = {
 
       // 2. Logged out successful!
       user.actions.setIsLoggedIn();
-      return manager.writeSuccess("Logged out successfully! Have a nice day!", true);
+      booking.actions.abortBooking();
+      return manager.writeSuccess("Logged out successfully! Existing booking draft were deleted. Have a nice day!", true);
     } catch (error: unknown) {
       if ((error as any)?.code !== undefined || (error as any)?.error !== undefined) 
         return apiErrorHandler(manager, error as any);
