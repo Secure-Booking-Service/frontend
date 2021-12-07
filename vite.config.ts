@@ -1,6 +1,6 @@
-import { defineConfig } from 'vite'
+import { defineConfig } from 'vite';
 import polyfillNode from 'rollup-plugin-polyfill-node';
-import tsconfigPaths from 'vite-tsconfig-paths'
+import tsconfigPaths from 'vite-tsconfig-paths';
 
 export default defineConfig({
   plugins: [
