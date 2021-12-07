@@ -2,7 +2,7 @@ import { Roles } from "@secure-booking-service/common-types/Roles";
 
 export interface State {
   isLoggedIn: boolean,
-  sessionLogoutTimerId: number | null,
+  sessionLogoutTimerId: NodeJS.Timeout | null,
   email: string,
   roles: Roles[]
 }
