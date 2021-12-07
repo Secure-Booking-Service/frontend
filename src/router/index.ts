@@ -1,5 +1,5 @@
 import { createRouter, createWebHashHistory, RouteRecordRaw } from "vue-router";
-import TerminalView from "../views/Terminal.vue";
+import TerminalView from "../views/TerminalView.vue";
 
 const routes: Array<RouteRecordRaw> = [
   {
