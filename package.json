@@ -22,7 +22,6 @@
     "vue": "^3.0.0",
     "vue-class-component": "^8.0.0-0",
     "vue-router": "^4.0.0-0",
-    "vuex": "^4.0.0-0",
     "xterm": "^4.14.1",
     "xterm-addon-fit": "^0.5.0"
   },

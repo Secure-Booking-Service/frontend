@@ -1,9 +1,11 @@
 import { ICommand } from "..";
 import { apiErrorHandler } from "../apierrorhandler";
 import { startRegistration } from "@simplewebauthn/browser";
-import store from "@/store";
 import isEmail from "validator/lib/isEmail";
 import isUUID from "validator/lib/isUUID";
+import { printApiError } from "./helper";
+import { api } from "@/components/utils/ApiUtil";
+import { user } from "@/overmind/user";
 
 export const registerCommand: ICommand = {
   command: "register",
@@ -25,22 +27,19 @@ export const registerCommand: ICommand = {
 
     try {
       // 1. Get options from server
-      const attestationOptions: any = await store.dispatch("startAttestation", {
-        email,
-        token,
-      });
+      const apiOptionsResponse = await api.get("/authentication/register", { params: { email, token }});
+      if (apiOptionsResponse.status !== 200) return printApiError(apiOptionsResponse);
+      const attestationOptions: any = apiOptionsResponse.data.data;
 
       // 2. Generate Keypair - Wait for WebAuthn
       const attestationResponse = await startRegistration(attestationOptions);
 
-      // 3. Send reponse to server
-      await store.dispatch("finishAttestation", {
-        email,
-        token,
-        attestationResponse,
-      });
+      // 3. Send response to server
+      const apiTokenResponse = await api.post("/authentication/register", { email, token, attestationResponse });
+      if (apiOptionsResponse.status !== 200) return printApiError(apiOptionsResponse);
 
       // 4. Successfully registered a new user!
+      user.actions.setIsLoggedIn(apiTokenResponse.data.data);
       return manager.writeLine(
         "Registration was successful! You are now logged in as " + email
       );

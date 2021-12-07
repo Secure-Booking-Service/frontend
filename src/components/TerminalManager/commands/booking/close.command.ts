@@ -1,6 +1,6 @@
 import { ICommand } from "@/components/TerminalManager";
 import { booking } from "@/overmind/booking";
-import { api } from "@/store/utils/ApiUtil";
+import { api } from "@/components/utils/ApiUtil";
 import { printApiError } from "../helper";
 import { noCurrentBooking } from "./helpers";
 import { yellow } from 'ansi-colors';

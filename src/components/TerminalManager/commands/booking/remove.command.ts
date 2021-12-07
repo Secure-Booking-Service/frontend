@@ -1,6 +1,6 @@
 import { ICommand } from "@/components/TerminalManager";
 import { user } from "@/overmind/user";
-import { api } from "@/store/utils/ApiUtil";
+import { api } from "@/components/utils/ApiUtil";
 import { Roles } from "@secure-booking-service/common-types/Roles";
 import { yellow } from "ansi-colors";
 import { printApiError } from "../helper";

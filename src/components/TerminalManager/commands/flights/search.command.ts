@@ -1,6 +1,6 @@
 import { AxiosRequestConfig } from "axios";
 import { ICommand } from "@/components/TerminalManager";
-import { api } from "@/store/utils/ApiUtil";
+import { api } from "@/components/utils/ApiUtil";
 import { booking } from "@/overmind/booking";
 import { noCurrentBooking } from "../booking/helpers";
 import { printApiError } from "../helper";
