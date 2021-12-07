@@ -112,7 +112,7 @@ export class TerminalManager {
     this.writeLine();
     this.writeInfo("Your session has expired, please log in again!", true);
     // Save and restore user input after printing the prompt (if no query is running)
-    if (this.resolveUserQuery === undefined){
+    if (this.resolveUserQuery === undefined) {
       const currentInput = this.currentCommand;
       this.printPrompt();
       this.write(currentInput);
@@ -190,7 +190,7 @@ export class TerminalManager {
     // Print welcome message
     this.writeLine(`Welcome to the ${c.blue.bold("Secure Booking Service")}!`);
     this.writeLine(`Type ${c.yellow.bold("help")} for a list of available commands.`);
-    
+
     // Register basic commands
     this.registerCommand(helpCommand);
     this.registerCommand(manCommand);
@@ -342,7 +342,7 @@ export class TerminalManager {
       // Write answer to terminal
       this.writeLine(answer);
       // Check user input
-      if (!validAnswers.includes(answer)) 
+      if (!validAnswers.includes(answer))
         this.writeError("Illegal input!");
     }
 
@@ -377,6 +377,16 @@ export class TerminalManager {
       return false;
     }
 
+    // Check for arrow keys (cursor movement)
+    return this.handleArrowKeys(event);
+  }
+
+  /**
+   * Handles arrow keys and initiates cursor moves if neccessary.
+   * @param event The key pressed as KeyboardEvent
+   * @returns False if the key is an arrow key, else true
+   */
+  private handleArrowKeys(event: KeyboardEvent): boolean {
     switch (event.key) {
       case "ArrowLeft":
         // Allow press and hold (ignore release)
@@ -399,7 +409,7 @@ export class TerminalManager {
           this.loadHistoryCommand(+1);
         return false;
       default:
-        // Continue processing input
+        // No arrow key pressed
         return true;
     }
   }
@@ -455,7 +465,7 @@ export class TerminalManager {
           this.terminal.write(ansiEscapes.cursorRestorePosition);
         }
         break;
-      default: 
+      default:
         this.writeUserInput(text);
     }
   }

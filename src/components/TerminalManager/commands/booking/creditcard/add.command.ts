@@ -39,10 +39,9 @@ export const addCommand: ICommand = {
       errors++;
     }
 
-    const validation = expireDate.match(/^(0[1-9]|1[0-2])\/?([0-9]{4}|[0-9]{2})$/);
+    const validation = expireDate.match(/^(0[1-9]|1[0-2])\/?(\d{4}|\d{2})$/);
     
-    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-    if (validation === null || validation!.length !== 3) {
+    if (validation === null || validation.length !== 3) {
       manager.writeError("Invalid format or date: " + expireDate);
       manager.writeLine("Please enter the date of expire in the MM/YY format");
       manager.writeLine();
