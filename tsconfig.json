@@ -28,6 +28,7 @@
     "strict": true,
     "sourceMap": true,
     "target": "esnext",
+    "types": [ "node" ],
   },
   "include": [
     "src/**/*.ts",

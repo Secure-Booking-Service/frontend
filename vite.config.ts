@@ -6,9 +6,14 @@ export default defineConfig({
   plugins: [
     tsconfigPaths(),
   ],
+  define: {
+    // Define 'process' for development
+    'process.env': {}
+  },
   build: {
     rollupOptions: {
       plugins: [
+        // Define 'process' for production
         polyfillNode({}),
       ],
     },
