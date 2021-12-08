@@ -1,5 +1,5 @@
-import { createApp } from "vue";
-import App from "./App.vue";
-import router from "./router";
+import { TerminalManager } from "@/TerminalManager";
+import "xterm/css/xterm.css";
+import "./main.css"; 
 
-createApp(App).use(router).mount("#app");
+TerminalManager.Instance.openTerminal(document.getElementById("xterm"));

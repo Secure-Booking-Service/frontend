@@ -1,8 +1,8 @@
 import { Context } from './config';
 import { Roles } from '@secure-booking-service/common-types/Roles';
-import { TerminalManager } from '@/components/TerminalManager';
+import { TerminalManager } from '@/TerminalManager';
 import { green } from 'ansi-colors';
-import { api } from '@/components/utils/ApiUtil';
+import { api } from '@/utils/ApiUtil';
 import { booking } from '../booking';
 
 /**

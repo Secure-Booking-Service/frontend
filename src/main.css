@@ -1,0 +1,13 @@
+body {
+  margin: 0px;
+}
+
+#xterm {
+  min-height: calc(100vh - 20px);
+  width: calc(100vw - 40px);
+  background-color: #2d2e2c;
+  padding: 10px 20px;
+}
+.xterm-viewport.xterm-viewport {
+  scrollbar-width: thin;
+}
