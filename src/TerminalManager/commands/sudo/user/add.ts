@@ -19,7 +19,7 @@ export const addCommand: ICommand = {
 
       if (apiReponse.status !== 201) throw printApiError(apiReponse);
 
-      console.log(apiReponse.data.data);
+      
       manager.writeLine(`Registration token:       ${yellow.bold(apiReponse.data.data.token)}`);
       manager.writeLine(`This token is valid for:  ${magenta.bold(apiReponse.data.data.lifetime)}`);
       manager.writeLine();
