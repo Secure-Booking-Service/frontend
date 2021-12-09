@@ -9,6 +9,9 @@
     "lint": "eslint . --ext .ts",
     "lint:fix": "eslint . --ext .ts --fix"
   },
+  "engines": { 
+    "node": ">= 16.0"
+  },
   "dependencies": {
     "@simplewebauthn/browser": "^4.1.0",
     "ansi-colors": "^4.1.1",
