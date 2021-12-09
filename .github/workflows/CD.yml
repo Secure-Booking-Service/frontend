@@ -1,8 +1,6 @@
 name: Azure - CD
 
 on:
-  push: 
-    branches: [ 'tjarbo/deploy' ]
   workflow_dispatch:
 
 jobs:
