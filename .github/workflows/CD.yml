@@ -18,4 +18,5 @@ jobs:
           azure_static_web_apps_api_token: ${{ secrets.AZURE_STATIC_WEB_APP_TOKEN_PRD }}
           repo_token: ${{ secrets.GITHUB_TOKEN }}
           output_location: 'dist'
-
+        env:
+          VITE_APP_API_URL: ${{ secrets.BACKEND_PRD }}
