@@ -4,12 +4,16 @@ import { api } from "@/utils/ApiUtil";
 import isEmail from "validator/lib/isEmail";
 import isIn from "validator/lib/isIn";
 import { apiErrorHandler } from "@/TerminalManager/apierrorhandler";
+import { user } from "@/overmind/user";
 
 export const addCommand: ICommand = {
   command: "add",
   description: "Add a role to user",
   usage: ["EMAIL", "ROLE"],
   callback: async (manager, ...args) => {
+    // Check if user has enough permissions
+    if (!user.state.roles.includes(Roles.ADMIN))
+      return manager.writeError("Unauthorized: You dont have the permission to add user roles!");
 
     let errors = 0;
 

@@ -6,6 +6,7 @@ import isUUID from "validator/lib/isUUID";
 import { printApiError } from "./helper";
 import { api } from "@/utils/ApiUtil";
 import { user } from "@/overmind/user";
+import { green, yellow } from "ansi-colors";
 
 export const registerCommand: ICommand = {
   command: "register",
@@ -23,11 +24,11 @@ export const registerCommand: ICommand = {
     if (!isUUID(token, 4))
       return manager.writeError("Please enter a valid registration token!");
 
-    manager.writeLine("Start registration for a new user with email: " + email);
+    manager.writeLine(`Start registration for a new user with email: ${yellow.bold(email)}`);
 
     try {
       // 1. Get options from server
-      const apiOptionsResponse = await api.get("/authentication/register", { params: { email, token }});
+      const apiOptionsResponse = await api.get("/authentication/register", { params: { email, token } });
       if (apiOptionsResponse.status !== 200) return printApiError(apiOptionsResponse);
       const attestationOptions: any = apiOptionsResponse.data.data;
 
@@ -40,8 +41,8 @@ export const registerCommand: ICommand = {
 
       // 4. Successfully registered a new user!
       user.actions.setIsLoggedIn(apiTokenResponse.data.data);
-      return manager.writeLine(
-        "Registration was successful! You are now logged in as " + email
+      return manager.writeSuccess(
+        `Registration was successful! You are now logged in as: ${green.bold(email)}`, true
       );
     } catch (error: unknown) {
       if (error instanceof Error && error.name == "AbortError") {
