@@ -102,6 +102,7 @@ export class TerminalManager {
    */
   private printPrompt(): void {
     this.currentCommand = "";
+    this.tPosition = 0;
     this.terminal.write("\r\n" + this.prompt);
   }
 
