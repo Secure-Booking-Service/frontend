@@ -14,6 +14,10 @@ export const listCommand: ICommand = {
   description: "Get a list of bookings",
   usage: ["[mine] [all] [EMAIL]"],
   callback: async (manager, param) => {
+    // Check if user has enough permissions
+    if (![Roles.TRAVELAGENT, Roles.TRAVELLEAD].some(role => user.state.roles.includes(role)))
+      return manager.writeError("Unauthorized: You dont have the permission to view bookings!");
+
     const MINE = "MINE";
     const ALL = "ALL";
 
