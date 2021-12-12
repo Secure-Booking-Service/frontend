@@ -3,8 +3,8 @@ import { Roles } from "@secure-booking-service/common-types/Roles";
 import { api } from "@/utils/ApiUtil";
 import isEmail from "validator/lib/isEmail";
 import isIn from "validator/lib/isIn";
-import { apiErrorHandler } from "@/TerminalManager/apierrorhandler";
 import { user } from "@/overmind/user";
+import { printApiError } from "@/TerminalManager/commands/helper";
 
 export const addCommand: ICommand = {
   command: "add",
@@ -43,7 +43,7 @@ export const addCommand: ICommand = {
 
       const apiReponse = await api.put('/user/' + email, payload);
       
-      if (apiReponse.status !== 200) throw apiErrorHandler(manager, apiReponse.data.error);
+      if (apiReponse.status !== 200) throw printApiError(apiReponse);
       
       manager.writeInfo("All changes will be applied at the next user login.", true);
       manager.writeSuccess("User updated successfully!", true);
