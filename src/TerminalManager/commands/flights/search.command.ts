@@ -71,12 +71,10 @@ export const searchCommand: ICommand = {
         return;
       }
       const flightOffers = apiResponse.data.data;
-      if (flightOffers.length > 0) {
-        manager.writeSuccess(`Found ${blue.bold(flightOffers.length)} flights`, true);
-        await printFlightOffers(flightOffers);
-      } else {
-        manager.writeError(`No flights found!`, true);
-      }
+      if (flightOffers.length == 0) return manager.writeError(`No flights found!`, true);
+
+      manager.writeSuccess(`Found ${blue.bold(flightOffers.length)} flights`, true);
+      await printFlightOffers(flightOffers);
       flights.actions.addFlightOffers(flightOffers);
     }
     catch (error: unknown) {
