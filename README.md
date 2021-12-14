@@ -12,7 +12,7 @@
 ## 📁 Folder /src
 This section explains the content of the important folder `/src`.
 
-* `/overmind/*`: Contains multiple run-time "storage" classes build of overmind. These stores various information at run-time between each code execution.
+* `/overmind/*`: Contains multiple run-time "storage" classes build with [overmind](https://overmindjs.org/). These store various information at run-time between each code execution.
 * `/TerminalManager/index.ts`: The heart of the web application. Contains the source code the handles all user in- and output.
 * `/TerminalManager/commands/*`: Each file represents a executable command.
 * `/utils/ApiUtil.ts`: Class and instance to communicate with the backend application.
