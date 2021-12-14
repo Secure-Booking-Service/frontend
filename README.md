@@ -22,12 +22,12 @@ This section describes the development setup to run the web application locally.
 Make sure that you have commit signing active for this repository `git config commit.gpgsign true`.
 
 ### Prerequisites ⚗️
-> We have also setup a `.devcontainer`.  [Learn more](https://code.visualstudio.com/docs/remote/containers#_quick-start-open-an-existing-folder-in-a-container)
+> We have also set up a `.devcontainer`.  [Learn more](https://code.visualstudio.com/docs/remote/containers#_quick-start-open-an-existing-folder-in-a-container)
 
 - Node with NPM installed (https://nodejs.org/en/download/)
 
 ### 📁 Installing modules
-Run `npm ci` to install required node modules.
+Run `npm ci` to install all required node modules.
 
 ### 🛫 Start development
 Run `npm start` at the root of the directory. Other available commands are
